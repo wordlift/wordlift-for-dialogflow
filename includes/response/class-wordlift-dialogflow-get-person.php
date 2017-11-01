@@ -43,7 +43,7 @@ class Wordlift_For_Dialogflow_Get_Person extends Wordlift_For_Dialogflow_Respons
 	 */
 	public function get_person() {
 		// Get all valid entity types.
-		$type = Wordlift_Entity_Service::valid_entity_post_types();
+		$types = Wordlift_Entity_Service::valid_entity_post_types();
 
 		// Query args.
 		$args = array(

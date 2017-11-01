@@ -19,8 +19,8 @@ class Wordlift_For_Dialogflow_Get_Website_Info extends Wordlift_For_Dialogflow_R
 	 */
 	private $sparql_service;
 
-	public function __construct() {
-		parent::__construct();
+	public function __construct( $request ) {
+		parent::__construct( $request );
 
 		// Set the SPARQL service.
 		$this->set_sparql_service();
