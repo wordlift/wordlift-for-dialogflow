@@ -69,9 +69,6 @@ require plugin_dir_path( __FILE__ ) . 'includes/class-wordlift-for-dialogflow.ph
  * @since    1.0.0
  */
 function run_wordlift_for_dialogflow() {
-
 	$plugin = new Wordlift_For_Dialogflow();
-	$plugin->run();
-
 }
 run_wordlift_for_dialogflow();

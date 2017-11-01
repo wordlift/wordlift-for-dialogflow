@@ -30,16 +30,6 @@
 class Wordlift_For_Dialogflow {
 
 	/**
-	 * The loader that's responsible for maintaining and registering all hooks that power
-	 * the plugin.
-	 *
-	 * @since    1.0.0
-	 * @access   protected
-	 * @var      Wordlift_For_Dialogflow_Loader    $loader    Maintains and registers all hooks for the plugin.
-	 */
-	protected $loader;
-
-	/**
 	 * The unique identifier of this plugin.
 	 *
 	 * @since    1.0.0
@@ -56,6 +46,15 @@ class Wordlift_For_Dialogflow {
 	 * @var      string    $version    The current version of the plugin.
 	 */
 	protected $version;
+
+	/**
+	 * A {@link Wordlift_Sparql_Service} instance.
+	 *
+	 * @since  1.0.0
+	 * @access private
+	 * @var \Wordlift_Sparql_Service $sparql_service A {@link Wordlift_Sparql_Service} instance.
+	 */
+	private $sparql_service;
 
 	/**
 	 * Define the core functionality of the plugin.
@@ -76,54 +75,25 @@ class Wordlift_For_Dialogflow {
 
 		$this->load_dependencies();
 		$this->set_locale();
-		$this->define_admin_hooks();
-		$this->define_public_hooks();
-
+		$this->load_hooks();
+		$this->set_sparql_service();
 	}
 
 	/**
 	 * Load the required dependencies for this plugin.
 	 *
 	 * Include the following files that make up the plugin:
-	 *
-	 * - Wordlift_For_Dialogflow_Loader. Orchestrates the hooks of the plugin.
 	 * - Wordlift_For_Dialogflow_i18n. Defines internationalization functionality.
-	 * - Wordlift_For_Dialogflow_Admin. Defines all hooks for the admin area.
-	 * - Wordlift_For_Dialogflow_Public. Defines all hooks for the public side of the site.
-	 *
-	 * Create an instance of the loader which will be used to register the hooks
-	 * with WordPress.
 	 *
 	 * @since    1.0.0
 	 * @access   private
 	 */
 	private function load_dependencies() {
-
-		/**
-		 * The class responsible for orchestrating the actions and filters of the
-		 * core plugin.
-		 */
-		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'includes/class-wordlift-for-dialogflow-loader.php';
-
 		/**
 		 * The class responsible for defining internationalization functionality
 		 * of the plugin.
 		 */
 		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'includes/class-wordlift-for-dialogflow-i18n.php';
-
-		/**
-		 * The class responsible for defining all actions that occur in the admin area.
-		 */
-		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'admin/class-wordlift-for-dialogflow-admin.php';
-
-		/**
-		 * The class responsible for defining all actions that occur in the public-facing
-		 * side of the site.
-		 */
-		require_once plugin_dir_path( dirname( __FILE__ ) ) . 'public/class-wordlift-for-dialogflow-public.php';
-
-		$this->loader = new Wordlift_For_Dialogflow_Loader();
-
 	}
 
 	/**
@@ -136,52 +106,19 @@ class Wordlift_For_Dialogflow {
 	 * @access   private
 	 */
 	private function set_locale() {
-
 		$plugin_i18n = new Wordlift_For_Dialogflow_i18n();
 
-		$this->loader->add_action( 'plugins_loaded', $plugin_i18n, 'load_plugin_textdomain' );
-
+		add_action( 'plugins_loaded', array( $plugin_i18n, 'load_plugin_textdomain' ) );
 	}
 
 	/**
-	 * Register all of the hooks related to the admin area functionality
-	 * of the plugin.
+	 * Register all of the hooks related to the functionality of the plugin.
 	 *
 	 * @since    1.0.0
 	 * @access   private
 	 */
-	private function define_admin_hooks() {
-
-		$plugin_admin = new Wordlift_For_Dialogflow_Admin( $this->get_plugin_name(), $this->get_version() );
-
-		$this->loader->add_action( 'admin_enqueue_scripts', $plugin_admin, 'enqueue_styles' );
-		$this->loader->add_action( 'admin_enqueue_scripts', $plugin_admin, 'enqueue_scripts' );
-
-	}
-
-	/**
-	 * Register all of the hooks related to the public-facing functionality
-	 * of the plugin.
-	 *
-	 * @since    1.0.0
-	 * @access   private
-	 */
-	private function define_public_hooks() {
-
-		$plugin_public = new Wordlift_For_Dialogflow_Public( $this->get_plugin_name(), $this->get_version() );
-
-		$this->loader->add_action( 'wp_enqueue_scripts', $plugin_public, 'enqueue_styles' );
-		$this->loader->add_action( 'wp_enqueue_scripts', $plugin_public, 'enqueue_scripts' );
-
-	}
-
-	/**
-	 * Run the loader to execute all of the hooks with WordPress.
-	 *
-	 * @since    1.0.0
-	 */
-	public function run() {
-		$this->loader->run();
+	private function load_hooks() {
+		add_action( 'rest_api_init', array( $this, 'register_rest_root' ) );
 	}
 
 	/**
@@ -213,6 +150,58 @@ class Wordlift_For_Dialogflow {
 	 */
 	public function get_version() {
 		return $this->version;
+	}
+
+	/**
+	 * Register the rest route where the Dialogflow request will .
+	 *
+	 * @since    1.0.0
+	 * @access   private
+	 */
+	public function register_rest_root() {
+		register_rest_route(
+			'wordlift-for-dialogflow/v2', // The namespace.
+			'/api_webhook/', // The route.
+			array(
+				'methods'  => 'POST', // Method.
+				'callback' => array( $this, 'handle_request' ), // Callback function.
+		) );
+	}
+
+	/**
+	 * Setup the WordLift SPARQL service.
+	 *
+	 * @since    1.0.0
+	 * @access   private
+	 */
+	private function set_sparql_service() {
+		// Check if the class exists.
+		if ( ! class_exists( 'Wordlift_Sparql_Service' ) ) {
+			// Setup the service.
+			$sparql_service = new Wordlift_Sparql_Service();
+		}
+	}
+
+	/**
+	 * Handle Dialogflow request.
+	 *
+	 * @since    1.0.0
+	 * @access   private
+	 */
+	private function handle_request() {
+		header( 'Content-Type: application/json' );
+		ob_start();
+		$response         = '';
+		$json             = file_get_contents( 'php://input' ); 
+		$request          = json_decode($json, true);
+		$action           = $request['result']['action'];
+		$parameters       = $request['result']['parameters'];
+		$response         = '';
+
+		$output['speech'] = wp_kses( $response, array() );
+		ob_end_clean();
+		echo json_encode($output);
+		exit;
 	}
 
 }
