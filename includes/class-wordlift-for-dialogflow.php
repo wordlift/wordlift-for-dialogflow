@@ -48,15 +48,6 @@ class Wordlift_For_Dialogflow {
 	protected $version;
 
 	/**
-	 * A {@link Wordlift_Sparql_Service} instance.
-	 *
-	 * @since  1.0.0
-	 * @access private
-	 * @var \Wordlift_Sparql_Service $sparql_service A {@link Wordlift_Sparql_Service} instance.
-	 */
-	private $sparql_service;
-
-	/**
 	 * Define the core functionality of the plugin.
 	 *
 	 * Set the plugin name and the plugin version that can be used throughout the plugin.
@@ -76,7 +67,6 @@ class Wordlift_For_Dialogflow {
 		$this->load_dependencies();
 		$this->set_locale();
 		$this->load_hooks();
-		$this->set_sparql_service();
 	}
 
 	/**
@@ -169,38 +159,30 @@ class Wordlift_For_Dialogflow {
 	}
 
 	/**
-	 * Setup the WordLift SPARQL service.
-	 *
-	 * @since    1.0.0
-	 * @access   private
-	 */
-	private function set_sparql_service() {
-		// Check if the class exists.
-		if ( ! class_exists( 'Wordlift_Sparql_Service' ) ) {
-			// Setup the service.
-			$sparql_service = new Wordlift_Sparql_Service();
-		}
-	}
-
-	/**
 	 * Handle Dialogflow request.
 	 *
 	 * @since    1.0.0
 	 * @access   private
 	 */
-	private function handle_request() {
+	public function handle_request() {
+		// Set the proper headers.
 		header( 'Content-Type: application/json' );
 		ob_start();
-		$response         = '';
-		$json             = file_get_contents( 'php://input' ); 
-		$request          = json_decode($json, true);
-		$action           = $request['result']['action'];
-		$parameters       = $request['result']['parameters'];
-		$response         = '';
 
-		$output['speech'] = wp_kses( $response, array() );
+		$json    = file_get_contents( 'php://input' ); // Get the request.
+		$request = json_decode( $json, true ); // Decode the input.
+
+		$response = Wordlift_For_Dialogflow_Response::factory( $request );
+
+		// Remove all html tags from response.
+		$output['speech'] = wp_kses( $response->get_response(), array() );
+
 		ob_end_clean();
+
+		// Print the response in json format.
 		echo json_encode($output);
+
+		// Finally exit to prevent other output.
 		exit;
 	}
 
