@@ -9,23 +9,6 @@
  * @subpackage Wordlift_For_Dialogflow/response
 */
 class Wordlift_For_Dialogflow_Get_Website_Info extends Wordlift_For_Dialogflow_Response {
-
-	/**
-	 * The {@link Wordlift_Sparql_Service} instance.
-	 *
-	 * @since  1.0.0
-	 * @access private
-	 * @var \Wordlift_Sparql_Service $sparql_service The {@link Wordlift_Sparql_Service} instance.
-	 */
-	private $sparql_service;
-
-	public function __construct( $request ) {
-		parent::__construct( $request );
-
-		// Set the SPARQL service.
-		$this->set_sparql_service();
-	}
-
 	/**
 	 * Return the response.
 	 *
@@ -51,43 +34,35 @@ class Wordlift_For_Dialogflow_Get_Website_Info extends Wordlift_For_Dialogflow_R
 	}
 
 	/**
-	 * Setup the sparql service.
-	 *
-	 * @access public
-	 * @abstract
-	 */
-	public function set_sparql_service() {
-		$this->sparql_service = new Wordlift_Sparql_Service();
-	}
-
-	/**
 	 * Retrive the main website topics.
 	 *
 	 * @return string The website topics
 	 */
 	public function get_topics() {
-		$sparql = "
-			PREFIX dct: <http://purl.org/dc/terms/>
-			SELECT * WHERE {
-				SELECT ?o (COUNT( * ) as ?count) 
-				WHERE { 
-					{ [] dct:references ?o } 
-					UNION { [] dct:relation ?o } 
-				}
-			GROUP BY ?o
-			}
-			ORDER BY DESC(?count) 
-			LIMIT 5";
+		global $wpdb;
 
-		$result = $this->sparql_service->select( $sparql );
-		$body   = wp_remote_retrieve_body( $result );
+		// Topics query.
+		$query = "
+			SELECT p.post_title AS title, COUNT( wlr.object_id ) AS count
+			FROM {$wpdb->prefix}wl_relation_instances AS wlr
+			INNER JOIN {$wpdb->prefix}posts AS p
+			WHERE p.ID = wlr.object_id
+			GROUP BY wlr.object_id
+			ORDER BY count DESC
+			LIMIT 10;
+		";
 
-		if ( $body !== 'query not supported' ) {
-			$topics   = str_getcsv($body, PHP_EOL);
+		// Make request to database.
+		$result = $wpdb->get_results( $query );
 
-			return $topics;
+		// Bail if the query return no results.
+		if ( empty( $result ) ) {
+			return false;
 		}
 
-		return false;
+		// Get the topic titles only.
+		$topics = wp_list_pluck( $result, 'title' );
+
+		return $topics;
 	}
 }
