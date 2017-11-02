@@ -8,7 +8,7 @@
  * @package    Wordlift_For_Dialogflow
  * @subpackage Wordlift_For_Dialogflow/response
 */
-class Wordlift_For_Dialogflow_Get_Event extends Wordlift_For_Dialogflow_Response {
+class Wordlift_For_Dialogflow_Get_Event extends Wordlift_For_Dialogflow_Get_Events {
 
 	/**
 	 * Return the response.
@@ -16,7 +16,7 @@ class Wordlift_For_Dialogflow_Get_Event extends Wordlift_For_Dialogflow_Response
 	 * @access public
 	 * @abstract
 	 */
-	public function generate_ouput() {
+	public function generate_response() {
 	}
 
 
