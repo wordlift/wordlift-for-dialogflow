@@ -60,6 +60,7 @@ register_deactivation_hook( __FILE__, 'deactivate_wordlift_for_dialogflow' );
 require plugin_dir_path( __FILE__ ) . 'includes/helpers.php';
 require plugin_dir_path( __FILE__ ) . 'includes/class-wordlift-for-dialogflow.php';
 require plugin_dir_path( __FILE__ ) . 'includes/response/class-wordlift-dialogflow-response.php';
+require plugin_dir_path( __FILE__ ) . 'includes/response/class-wordlift-dialogflow-response-sparql.php';
 require plugin_dir_path( __FILE__ ) . 'includes/response/class-wordlift-dialogflow-get-person.php';
 require plugin_dir_path( __FILE__ ) . 'includes/response/class-wordlift-dialogflow-get-events.php';
 require plugin_dir_path( __FILE__ ) . 'includes/response/class-wordlift-dialogflow-get-publisher.php';

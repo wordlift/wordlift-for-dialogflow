@@ -67,11 +67,10 @@ class Wordlift_For_Dialogflow_Get_Website_Info extends Wordlift_For_Dialogflow_R
 					{ [] dct:references ?o } 
 					UNION { [] dct:relation ?o } 
 				}
-				GROUP BY ?o
-				}
-				ORDER BY DESC(?count) 
-				LIMIT 5
-			EOF;";
+			GROUP BY ?o
+			}
+			ORDER BY DESC(?count) 
+			LIMIT 5";
 
 		$result = $this->sparql_service->select( $sparql );
 		$body   = wp_remote_retrieve_body( $result );
