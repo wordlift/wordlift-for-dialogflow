@@ -16,25 +16,30 @@ class Wordlift_For_Dialogflow_Get_Person extends Wordlift_For_Dialogflow_Respons
 	 * @access public
 	 * @abstract
 	 */
-	public function get_response() {
+	public function generate_response() {
 		$person = $this->get_person();
 
 		if ( empty( $person ) ) {
-			return 'I am so sorry but I am afraid I don\'t have an answer to your question. Would you like to know what this website is about instead?';
+			$this->set_speech( 'I am so sorry but I am afraid I don\'t have an answer to your question. Would you like to know what this website is about instead?' );
+			return;
 		}
-
-		// Get all sentences except the first one.
-		$response = get_sentences( $person->post_content, 1 );
 
 		if ( empty( $this->get_param( 'full-info' ) ) ) {
 			// Get first sentence only.
-			$response = get_sentences( $person->post_content, 0, 1 );
+			$text = get_sentences( $person->post_content, 0, 1 );
+
+			// Add the message.
+			$this->add_text_message( $text );
 
 			// Add a follow up question.
-			$response .= "\nWould you like to hear another fact?";
+			$this->add_prompt_message( 'Would you like to hear another fact?', array( 'yes', 'no' ) );
+		} else {
+			// Get all sentences except the first one.
+			$text = get_sentences( $person->post_content, 1 );
+
+			$this->add_text_message( $text );
 		}
 
-		return $response;
 	}
 
 	/**

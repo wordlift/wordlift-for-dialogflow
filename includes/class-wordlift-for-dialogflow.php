@@ -172,15 +172,19 @@ class Wordlift_For_Dialogflow {
 		$json    = file_get_contents( 'php://input' ); // Get the request.
 		$request = json_decode( $json, true ); // Decode the input.
 
+		// Build response class.
 		$response = Wordlift_For_Dialogflow_Response::factory( $request );
 
-		// Remove all html tags from response.
-		$output['speech'] = wp_kses( $response->get_response(), array() );
+		// Trigger the output generation.
+		$response->generate_response();
+
+		// Get the output.
+		$output = $response->get_response();
 
 		ob_end_clean();
 
 		// Print the response in json format.
-		echo json_encode($output);
+		echo json_encode( $output );
 
 		// Finally exit to prevent other output.
 		exit;

@@ -21,7 +21,7 @@ class Wordlift_For_Dialogflow_Get_Events extends Wordlift_For_Dialogflow_Respons
 				schema:startDate ?startDate .
 				FILTER ( xsd:dateTime( ?startDate ) > now() )
 			}
-			LIMIT 5";
+			LIMIT 3";
 
 		// Set the SPARQL service.
 		$this->set_sparql_query( $query );
@@ -33,10 +33,22 @@ class Wordlift_For_Dialogflow_Get_Events extends Wordlift_For_Dialogflow_Respons
 	 * @access public
 	 * @abstract
 	 */
-	public function get_response() {
+	public function generate_response() {
 		$events = $this->get_events();
 
-		return $events;
+		// Add error message if there are no events found.
+		if ( empty( $events ) ) {
+			$this->set_speech( 'I am sorry, there are no upcoming events on this website.' );
+			return;
+		}
+
+		// Add intro message
+		$this->add_text_message( 'Here is a list with all upcoming events:' );
+
+		// Add each event as message.
+		foreach ( $events as $message ) {
+			$this->add_text_message( $message );
+		}
 	}
 
 	/**
@@ -44,29 +56,45 @@ class Wordlift_For_Dialogflow_Get_Events extends Wordlift_For_Dialogflow_Respons
 	 * @return type
 	 */
 	public function get_events() {
-
+		// Get query result.
 		$events = $this->get_result();
 
 		// Return error message if there are no events found.
 		if ( empty( $events ) ) {
-			return 'I am sorry, there are no upcoming events on this website.';
+			return false;
 		}
 
-		$events = str_getcsv($events, PHP_EOL);
+		// Parse the response into an array.
+		$events = str_getcsv( $events, PHP_EOL );
 
-		foreach ($events as $number => $event) {
+		// Loop through all events and get formatted dates.
+		foreach ( $events as $number => $event ) {
+			// Bail if this is the first row 
+			// because it contains the headings only, not an event data.
 			if ( ! $number ) {
 				continue;
 			}
 
-			$event = explode(',', $event);
+			// Convert the event data into an array.
+		    $event = explode( ',', $event );
 
-			$response .= $number . ". \n\r" . $event[2] . "\n\r";
+		    // Convert the date to timestamp.
+            $timestamp = strtotime( $event[3] );
+
+            // Build event message.
+            $message = sprintf(
+            	'%d. %s which will be held on %s at %s',
+            	$number, // Add number index.
+            	$event[2], // Add event name.
+            	date( 'F j', $timestamp ), // Add the event data.
+            	date( 'g:ia', $timestamp ) // Add the start hour.
+            );
+
+            // Put event information in messages array.
+            $messages[] = $message;
 		}
-		
-		$response .= ". \n\rWould you like me to read you about one of these events? \n\r";
 
-
-		return $response;
+		// Return the response.
+		return $messages;
 	}
 }

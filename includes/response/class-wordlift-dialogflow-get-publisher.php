@@ -32,23 +32,23 @@ class Wordlift_For_Dialogflow_Get_Publisher extends Wordlift_For_Dialogflow_Resp
 	 * @access public
 	 * @abstract
 	 */
-	public function get_response() {
+	public function generate_response() {
 		$publisher = $this->get_publisher();
 
 		// Return error message if the publisher is not configured.
 		if ( empty( $publisher ) ) {
-			return 'Sorry, the publisher has not yet being configured on this website';
+			$this->set_speech( 'Sorry, the publisher has not yet being configured on this website' );
 		}
-		
-		// Build the response adding prompt.
-		$response = $publisher->post_title . 'is the publisher of this website. Would you like to know more about them?';
 
 		// Check if we should display the full publisher info.
-		if ( ! empty( $this->get_param( 'full-info' ) ) ) {
-			$response = $publisher->post_content;
-		}
+		if ( empty( $this->get_param( 'full-info' ) ) ) {
+			// Build the response adding prompt.
+			$this->add_text_message( $publisher->post_title . 'is the publisher of this website.' );
 
-		return $response;
+			$this->add_prompt_message( 'Would you like to know more about them?', array( 'yes', 'no' ) );
+		} else {
+			$this->add_text_message( $publisher->post_content );
+		}
 	}
 
 	/**

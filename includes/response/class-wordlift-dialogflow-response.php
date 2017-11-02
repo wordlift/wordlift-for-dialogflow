@@ -37,13 +37,12 @@ abstract class Wordlift_For_Dialogflow_Response {
 	protected $contexts;
 
 	/**
-	 * A {@link Wordlift_Sparql_Service} instance.
+	 * Final response message.
 	 *
-	 * @since  1.0.0
-	 * @access private
-	 * @var \Wordlift_Sparql_Service $sparql_service A {@link Wordlift_Sparql_Service} instance.
+	 * @access protected
+	 * @var array
 	 */
-	private $sparql_service;
+	protected $response;
 
 	/**
 	 * Constructor
@@ -158,5 +157,76 @@ abstract class Wordlift_For_Dialogflow_Response {
 	 * @access public
 	 * @abstract
 	 */
-	abstract public function get_response();
+	public function get_response() {
+		return $this->response;
+	}
+ 
+	/**
+	 * Sets the Response speech.
+	 *
+	 * @param string $speech The response speech
+	 *
+	 * @return self
+	 */
+	public function set_speech( $speech ) {
+		$this->response['speech'] = $this->remove_tags( $speech );
+	}
+ 
+	/**
+	 * Add text message.
+	 *
+	 * @param text $text The message text
+	 *
+	 * @return void
+	 */
+	public function add_text_message( $text ) {
+		// Build the response message.
+		$message = array(
+			'type'   => 0,
+			'speech' => $this->remove_tags( $text ),
+		);
+
+		// Set the response messages.
+		$this->response['messages'][] = $message;
+	}
+
+	/**
+	 * Add response messages.
+	 *
+	 * @param text $text The message text
+	 * @param array $replies The reply options.
+	 *
+	 * @return void
+	 */
+	public function add_prompt_message( $text, $replies ) {
+		// Build the response message.
+		$message = array(
+			'type'    => 2,
+			'title'   => $this->remove_tags( $text ),
+			'replies' => $replies,
+		);
+
+		// Set the response messages.
+		$this->response['messages'][] = $message;
+	}
+
+	/**
+	 * Clean all tags from text.
+	 *
+	 * @param string $text Text to be cleaned
+	 *
+	 * @return self
+	 */
+	public function remove_tags( $text ) {
+		return wp_kses( $text, array() );
+	}
+
+	/**
+	 * Generate the response message.
+	 *
+	 * @access public
+	 * @abstract
+	 */
+	abstract public function generate_response();
+
 }

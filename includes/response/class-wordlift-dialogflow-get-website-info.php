@@ -32,15 +32,22 @@ class Wordlift_For_Dialogflow_Get_Website_Info extends Wordlift_For_Dialogflow_R
 	 * @access public
 	 * @abstract
 	 */
-	public function get_response() {
+	public function generate_response() {
 		$topics = $this->get_topics();
 
 		// Return error message if there are no topics found.
 		if ( empty( $topics ) ) {
-			return 'I am afraid WordLift has not been used yet to analyze the content of this website';
+			$this->set_speech( 'I am afraid WordLift has not been used yet to analyze the content of this website' );
+			return;
 		}
 
-		return $topics;
+		// Add intro message.
+		$this->add_text_message( 'The primary topics of this website include: ' );
+
+		// Add each event as message.
+		foreach ( $topics as $message ) {
+			$this->add_text_message( $message );
+		}
 	}
 
 	/**
@@ -78,7 +85,9 @@ class Wordlift_For_Dialogflow_Get_Website_Info extends Wordlift_For_Dialogflow_R
 		if ( $body !== 'query not supported' ) {
 			$topics   = str_getcsv($body, PHP_EOL);
 
-			return 'The primary topics of this website include ' . $topics;;
+			return $topics;
 		}
+
+		return false;
 	}
 }
