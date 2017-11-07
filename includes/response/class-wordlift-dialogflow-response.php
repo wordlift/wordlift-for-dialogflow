@@ -148,7 +148,7 @@ abstract class Wordlift_For_Dialogflow_Response {
 	 * @return array
 	 */
 	public function get_param( $paramether ) {
-		return ( isset( $this->params[ $paramether ] ) ) ? $this->params[ $paramether ] : false ;;
+		return ( isset( $this->params[ $paramether ] ) ) ? $this->params[ $paramether ] : false ;
 	}
 
 	/**

@@ -42,7 +42,7 @@ class Wordlift_For_Dialogflow_Get_Publisher extends Wordlift_For_Dialogflow_Resp
 		// Check if we should display the full publisher info.
 		if ( empty( $this->get_param( 'full-info' ) ) ) {
 			// Build the response adding prompt.
-			$this->add_text_message( $publisher->post_title . 'is the publisher of this website.' );
+			$this->add_text_message( $publisher->post_title . ' is the publisher of this website.' );
 
 			// Add prompt question.
 			$this->add_text_message( 'Would you like to know more about them?' );

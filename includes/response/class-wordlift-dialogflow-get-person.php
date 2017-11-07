@@ -54,27 +54,37 @@ class Wordlift_For_Dialogflow_Get_Person extends Wordlift_For_Dialogflow_Respons
 	 * @return objects The entity post object.
 	 */
 	public function get_person() {
+		global $wpdb;
 		// Get all valid entity types.
 		$types = Wordlift_Entity_Service::valid_entity_post_types();
 
-		// Query args.
-		$args = array(
-			's'             => $this->get_param( 'person' ), // The search string.
-			'post_per_page' => 1,
-			'post_type'     => $types,
-			'tax_query'     => array(
-				array(
-					'taxonomy' => 'wl_entity_type',
-					'terms'    => 'person',
-					'field'    => 'slug'
-				)
-			)
-		);
+		// Implode the types, so they can be passed to SQL query.
+		$types = implode("', '", $types);
 
-		// Make the request.
-		$posts = get_posts( $args );
+		// The person title, that we are looking for.
+		$title = $this->get_param( 'person' );
+
+		// SQL query that will retrieve the person description.
+		$query = "
+			SELECT p.post_content
+			FROM $wpdb->posts AS p
+			INNER JOIN $wpdb->terms AS t
+			INNER JOIN $wpdb->term_taxonomy AS tt
+				ON t.term_id = tt.term_id
+			INNER JOIN $wpdb->term_relationships AS r
+				ON r.term_taxonomy_id = tt.term_taxonomy_id
+			WHERE p.ID = r.object_id
+			AND p.post_type IN ('{$types}')
+			AND tt.taxonomy = 'wl_entity_type'
+			AND t.slug = 'person'
+			AND p.post_title LIKE '%{$title}%'
+			LIMIT 1
+		";
+
+		// Get the result
+		$result = $wpdb->get_results( $query );
 
 		// Return the person or empty array.
-		return ( ! empty( $posts ) ) ? $posts[0] : array() ;
+		return ( ! empty( $result ) ) ? $result[0] : array() ;
 	}
 }
