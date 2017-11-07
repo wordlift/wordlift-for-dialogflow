@@ -168,6 +168,13 @@ abstract class Wordlift_For_Dialogflow_Response {
 	 *
 	 * @return self
 	 */
+	/**
+	 * Sets the Response speech.
+	 *
+	 * @param string $speech The response speech
+	 *
+	 * @return self
+	 */
 	public function set_speech( $speech ) {
 		$this->response['speech'] = $this->remove_tags( $speech );
 	}
@@ -182,8 +189,27 @@ abstract class Wordlift_For_Dialogflow_Response {
 	public function add_text_message( $text ) {
 		// Build the response message.
 		$message = array(
-			'type'   => 0,
-			'speech' => $this->remove_tags( $text ),
+			'type'         => 'simple_response',
+			'platform'     => 'google',
+			'textToSpeech' => $this->remove_tags( $text )
+		);
+
+		// Set the response messages.
+		$this->response['messages'][] = $message;
+	}
+
+	/**
+	 * Add list message.
+	 *
+	 * @param array $list The list that will be displayed.
+	 *
+	 * @return void
+	 */
+	public function add_list_message( $list ) {
+		// Build the response message.
+		$message = array(
+			'type'     => 'list_card',
+			'items'    => $list
 		);
 
 		// Set the response messages.
@@ -193,18 +219,27 @@ abstract class Wordlift_For_Dialogflow_Response {
 	/**
 	 * Add response messages.
 	 *
-	 * @param text $text The message text
-	 * @param array $replies The reply options.
+	 * @param array $labels The reply options.
 	 *
 	 * @return void
 	 */
-	public function add_prompt_message( $text, $replies ) {
-		// Build the response message.
+	public function add_prompt_message( $labels ) {
+		// The replies array.
+		$replies = array();
+
+		// Loop through all label and fill the replies array.
+		foreach ( $labels as $label ) {
+			$replies[] = array(
+				'title' => $this->remove_tags( $label ),
+			);
+		}
+
+		// Build message object
 		$message = array(
-			'type'    => 2,
-			'title'   => $this->remove_tags( $text ),
-			'replies' => $replies,
-		);
+			'platform'    => 'google',
+			'type'        => 'suggestion_chips',
+			'suggestions' => $replies,
+		  );
 
 		// Set the response messages.
 		$this->response['messages'][] = $message;
