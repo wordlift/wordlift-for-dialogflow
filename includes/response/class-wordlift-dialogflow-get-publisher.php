@@ -30,7 +30,6 @@ class Wordlift_For_Dialogflow_Get_Publisher extends Wordlift_For_Dialogflow_Resp
 	 * Return the response.
 	 *
 	 * @access public
-	 * @abstract
 	 */
 	public function generate_response() {
 		$publisher = $this->get_publisher();
@@ -45,7 +44,15 @@ class Wordlift_For_Dialogflow_Get_Publisher extends Wordlift_For_Dialogflow_Resp
 			// Build the response adding prompt.
 			$this->add_text_message( $publisher->post_title . 'is the publisher of this website.' );
 
-			$this->add_prompt_message( 'Would you like to know more about them?', array( 'yes', 'no' ) );
+			// Add prompt question.
+			$this->add_text_message( 'Would you like to know more about them?' );
+
+			// Add promp options.
+			// TODO: We need to find a way to create this prompt message dynamically
+			$this->add_prompt_message( array(
+				'Yes please',
+				'No thank you',
+			) );
 		} else {
 			$this->add_text_message( $publisher->post_content );
 		}
@@ -54,8 +61,7 @@ class Wordlift_For_Dialogflow_Get_Publisher extends Wordlift_For_Dialogflow_Resp
 	/**
 	 * Setup configuration service
 	 *
-	 * @access public
-	 * @abstract
+	 * @access private
 	 */
 	private function set_configuration_service() {
 		$this->configuration_service = new Wordlift_Configuration_Service();

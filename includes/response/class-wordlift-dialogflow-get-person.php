@@ -31,8 +31,15 @@ class Wordlift_For_Dialogflow_Get_Person extends Wordlift_For_Dialogflow_Respons
 			// Add the message.
 			$this->add_text_message( $text );
 
-			// Add a follow up question.
-			$this->add_prompt_message( 'Would you like to hear another fact?', array( 'yes', 'no' ) );
+			// Add promp message
+			$this->add_text_message( 'Would you like to hear another fact?' );
+
+			// Add promp options.
+			// TODO: We need to find a way to create this prompt message dynamically
+			$this->add_prompt_message( array(
+				'Yes please',
+				'No thanks',
+			) );
 		} else {
 			// Get all sentences except the first one.
 			$text = get_sentences( $person->post_content, 1 );
