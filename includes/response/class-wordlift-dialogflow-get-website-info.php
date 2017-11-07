@@ -27,18 +27,16 @@ class Wordlift_For_Dialogflow_Get_Website_Info extends Wordlift_For_Dialogflow_R
 		// Add intro message.
 		$this->add_text_message( 'The primary topics of this website include: ' );
 
-		// Add each event as message.
-		foreach ( $topics as $message ) {
-			$this->add_text_message( $message );
-		}
+		// Add the topics.
+		$this->add_list_message( $topics );
 	}
 
 	/**
-	 * Retrive the main website topics.
+	 * Retrieve main topics from database
 	 *
-	 * @return string The website topics
+	 * @return array The topic titles
 	 */
-	public function get_topics() {
+	public function get_topics_data() {
 		global $wpdb;
 
 		// Topics query.
@@ -64,5 +62,49 @@ class Wordlift_For_Dialogflow_Get_Website_Info extends Wordlift_For_Dialogflow_R
 		$topics = wp_list_pluck( $result, 'title' );
 
 		return $topics;
+	}
+
+	/**
+	 * Retrive the main topics of the website.
+	 *
+	 * @return array $topic_messages Array of topic messages that can be read by Google.
+	 */
+	public function get_topics() {
+		// The topic messages.
+		$topic_messages = array();
+
+		// Get topic titles from database.
+		$topics = $this->get_topics_data();
+
+		// Loop throught all topic and build the message object
+		foreach ( $topics as $topic ) {
+			$topic_messages[] = $this->get_topic_object( $topic );
+		}
+
+		// Return the messages.
+		return $topic_messages;
+	}
+
+	/**
+	 * Creates topic message object that will be passed to Google.
+	 *
+	 * @param string $topic The topic title
+	 *
+	 * @return string $message_object Array of topic details.
+	 */
+	public function get_topic_object( $topic ) {
+		// Generate unique key id, based on topic title.
+		$key = strtoupper( sanitize_title( $topic ) );
+
+		// Message object that will be read from Google.
+		$message_object = array(
+			'title'      => $topic, // Add message title.
+			'optionInfo' => array(
+				'key' => $key, // Add the topic key.
+			),
+		);
+
+		// Finally return the object.
+		return $message_object;
 	}
 }
