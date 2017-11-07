@@ -51,9 +51,8 @@ abstract class Wordlift_For_Dialogflow_Response_Spqrql extends Wordlift_For_Dial
 	public function get_result() {
 		// Get query result;
 		$result = $this->sparql_service->select( $this->sparql_query );
-
 		// Retrieve the request body.
-		$body   = wp_remote_retrieve_body( $result );
+		$body = wp_remote_retrieve_body( $result );
 
 		// Bail if the query fails.
 		if ( $body == 'query not supported' ) {

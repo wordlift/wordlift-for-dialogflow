@@ -34,7 +34,7 @@ class Wordlift_For_Dialogflow_Get_Events extends Wordlift_For_Dialogflow_Respons
 	 * @abstract
 	 */
 	public function generate_response() {
-		$events = $this->get_events();
+		$events = $this->get_event_messages();
 
 		// Add error message if there are no events found.
 		if ( empty( $events ) ) {
@@ -61,9 +61,6 @@ class Wordlift_For_Dialogflow_Get_Events extends Wordlift_For_Dialogflow_Respons
 	 * @return type
 	 */
 	public function get_events() {
-		// Messages array where we will store each event message.
-		$messages = array();
-
 		// Get query result.
 		$events = $this->get_result();
 
@@ -71,9 +68,23 @@ class Wordlift_For_Dialogflow_Get_Events extends Wordlift_For_Dialogflow_Respons
 		if ( empty( $events ) ) {
 			return false;
 		}
-
 		// Parse the response into an array.
 		$events = str_getcsv( $events, PHP_EOL );
+
+		// Return the events.
+		return $events;
+	}
+
+	/**
+	 * Get events objects
+	 * @return array $messages Array of message objects
+	 */
+	public function get_event_messages() {
+		// Messages array where we will store each event message.
+		$messages = array();
+
+		// Ge the events.
+		$events = $this->get_events();
 
 		// Loop through all events and get formatted dates.
 		foreach ( $events as $index => $event ) {
