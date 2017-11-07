@@ -43,22 +43,24 @@ class Wordlift_For_Dialogflow_Get_Events extends Wordlift_For_Dialogflow_Respons
 		}
 
 		// Add intro message
-		$this->add_text_message( 'Here is a list with all upcoming events:' );
+		$this->add_text_message( 'Here is a list with all upcoming events. Would you like me to read you about one of these events?' );
 
-		// Add each event as message.
-		foreach ( $events as $message ) {
-			$this->add_text_message( $message );
-		}
+		// Add the list of events
+		$this->add_list_message( $events );
 
 		// Add a follow up question.
-		$this->add_prompt_message( 'Would you like me to read you about one of these events?', array( 'yes', 'no' ) );
+		// TODO: We need to find a way to create this prompt message dynamically
+		$this->add_prompt_message( array(
+			'Sure',
+			'No thanks'
+		) );
 	}
 
 	/**
 	 * Get events from SPARQL request
 	 * @return type
 	 */
-	public function get_events( $number=false ) {
+	public function get_events() {
 		// Messages array where we will store each event message.
 		$messages = array();
 
@@ -82,12 +84,7 @@ class Wordlift_For_Dialogflow_Get_Events extends Wordlift_For_Dialogflow_Respons
 			}
 
 			// Put event information in messages array.
-			$messages[] = $this->get_event_message( $event, $index );
-
-			// Return what we have if we've reached the required number of events.
-			if ( ! empty( $number ) && $number == $index ) {
-				return $messages;
-			}
+			$messages[] = $this->get_message_object( $event );
 		}
 
 		// Return the response.
@@ -95,25 +92,46 @@ class Wordlift_For_Dialogflow_Get_Events extends Wordlift_For_Dialogflow_Respons
 	}
 
 	/**
-	 * Creates event message from event data.
+	 * Creates event message object that will be passed to Google.
 	 *
 	 * @param array $event Array of event information
-	 * @param int $index The event index from the list of events
 	 *
-	 * @return string $message Human readable message.
+	 * @return string $message_object Array of event details.
 	 */
-	public function get_event_message( $event, $index ) {
+	public function get_message_object( $event ) {
 		// Convert the event data into an array.
 		$event = explode( ',', $event );
 
+		// Generate unique key id, based on event title.
+		$key = strtoupper( sanitize_title( $event[2] ) );
+
+		// Message object that will be read from Google.
+		$message_object =  array(
+			'title'       => $event[2], // Add message title.
+			'description' => $this->get_event_message( $event ), // Add the message.
+			'optionInfo'  => array(
+				'key' => $key, // Add the event key.
+			),
+		);
+
+		// Finally return the object.
+		return $message_object;
+	}
+
+	/**
+	 * Creates event message from event data.
+	 *
+	 * @param array $event Array of event information
+	 *
+	 * @return string $message Human readable message.
+	 */
+	public function get_event_message( $event ) {
 		// Convert the date to timestamp.
 		$timestamp = strtotime( $event[3] );
 
 		// Build event message.
 		$message = sprintf(
-			'%d. %s which will be held on %s at %s',
-			$index, // Add index.
-			$event[2], // Add event name.
+			'It will be held on %s at %s',
 			date( 'F j', $timestamp ), // Add the event data.
 			date( 'g:ia', $timestamp ) // Add the start hour.
 		);
