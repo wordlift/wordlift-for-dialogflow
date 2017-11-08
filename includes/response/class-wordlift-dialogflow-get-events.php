@@ -9,24 +9,6 @@
  * @subpackage Wordlift_For_Dialogflow/response
 */
 class Wordlift_For_Dialogflow_Get_Events extends Wordlift_For_Dialogflow_Response_Spqrql {
-
-	public function __construct( $request ) {
-		parent::__construct( $request );
-
-		$query = "
-			SELECT * WHERE {
-				BIND( <http://schema.org/Event> as ?type )
-				?subject a ?type ;
-				rdfs:label ?label ;
-				schema:startDate ?startDate .
-				FILTER ( xsd:dateTime( ?startDate ) > now() )
-			}
-			LIMIT 3";
-
-		// Set the SPARQL service.
-		$this->set_sparql_query( $query );
-	}
-
 	/**
 	 * Return the response.
 	 *
@@ -42,14 +24,14 @@ class Wordlift_For_Dialogflow_Get_Events extends Wordlift_For_Dialogflow_Respons
 			return;
 		}
 
-		// Add intro message
+		// Add intro message.
 		$this->add_text_message( 'Here is a list with all upcoming events. Would you like me to read you about one of these events?' );
 
-		// Add the list of events
+		// Add the list of events.
 		$this->add_list_message( $events );
 
 		// Add a follow up question.
-		// TODO: We need to find a way to create this prompt message dynamically
+		// TODO: We need to find a way to create this prompt message dynamically.
 		$this->add_prompt_message( array(
 			'Sure',
 			'No thanks'
@@ -148,5 +130,66 @@ class Wordlift_For_Dialogflow_Get_Events extends Wordlift_For_Dialogflow_Respons
 		);
 
 		return $message;
+	}
+
+	/**
+	 * Set in SPARQL query which fields the message needs
+	 * @return int The fields.
+	 */
+	public function get_select_clause() {
+		return 'SELECT * ';
+	}
+
+	// TODO: Add conditional logic, based on questions
+	/**
+	 * Set in SPARQL query which fields the message needs
+	 * @return int The fields.
+	 */
+	public function get_where_clause() {
+		$where = "
+			WHERE {
+				BIND( <http://schema.org/Event> as ?type )
+				{$this->get_response_fields()}
+				{$this->get_filter_clause()}
+			}
+		";
+
+		return $where;
+	}
+
+	/**
+	 * Set the filter in SPARQL query
+	 * so the events can be filtered by different params.
+	 *
+	 * @return string The filter.
+	 */
+	public function get_filter_clause() {
+		return 'FILTER ( xsd:dateTime( ?startDate ) > now() )';
+	}
+
+	/**
+	 * Generate the limit clause for sparql query.
+	 *
+	 * @return string The limit clause.
+	 */
+	public function get_limit_clause() {
+		// Return the limit clause.
+		return 'LIMIT 5';
+	}
+
+	/**
+	 * Generate the limit clause for sparql query.
+	 *
+	 * @return string The limit clause.
+	 */
+	public function get_response_fields() {
+		$fields = "
+			?subject a ?type ;
+			rdfs:label ?label ;
+			schema:startDate ?startDate .
+		";
+		// Return the fields.
+
+		return $fields;
 	}
 }

@@ -32,6 +32,12 @@ abstract class Wordlift_For_Dialogflow_Response_Spqrql extends Wordlift_For_Dial
 
 		// Set the SPARQL service.
 		$this->set_sparql_service();
+
+		// Build the query.
+		$query = $this->build_sparql_query();
+
+		// Set the SPARQL query.
+		$this->set_sparql_query( $query );
 	}
 
 	/**
@@ -81,4 +87,33 @@ abstract class Wordlift_For_Dialogflow_Response_Spqrql extends Wordlift_For_Dial
 	public function get_sparql_query() {
 		return $this->sparql_query;
 	}
+
+	/**
+	 * Generate new sparql query based on user request.
+	 *
+	 * @return string The new sparql query
+	*/
+	public function build_sparql_query() {
+		return $this->get_select_clause() . $this->get_where_clause() . $this->get_limit_clause();
+	}
+
+	/**
+	 * Set in SPARQL query which fields the message needs
+	 */
+	abstract public function get_select_clause();
+
+	/**
+	 * Set in SPARQL query which fields the message needs
+	 */
+	abstract public function get_where_clause();
+
+	/**
+	 * Set the filter in SPARQL query so the events can be filtered by different params.
+	 */
+	abstract public function get_filter_clause();
+
+	/**
+	 * Generate the limit clause for sparql query.
+	 */
+	abstract public function get_limit_clause();
 }

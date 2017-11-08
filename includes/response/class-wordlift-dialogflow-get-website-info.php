@@ -47,7 +47,7 @@ class Wordlift_For_Dialogflow_Get_Website_Info extends Wordlift_For_Dialogflow_R
 			WHERE p.ID = wlr.object_id
 			GROUP BY wlr.object_id
 			ORDER BY count DESC
-			LIMIT 10;
+			LIMIT 5;
 		";
 
 		// Make request to database.

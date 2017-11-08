@@ -9,17 +9,6 @@
  * @subpackage Wordlift_For_Dialogflow/response
 */
 class Wordlift_For_Dialogflow_Get_Event extends Wordlift_For_Dialogflow_Get_Events {
-
-	public function __construct( $request ) {
-		parent::__construct( $request );
-
-		// Build the query.
-		$query = $this->build_sparql_query();
-
-		// Set the SPARQL service.
-		$this->set_sparql_query( $query );
-	}
-
 	/**
 	 * Return the response.
 	 *
@@ -48,70 +37,51 @@ class Wordlift_For_Dialogflow_Get_Event extends Wordlift_For_Dialogflow_Get_Even
 		) );
 	}
 
-
-	/**
-	 * Creates event message from event data.
-	 *
-	 * @param array $event Array of event information
-	 *
-	 * @return string $message Human readable message.
-	 */
-	public function get_event_message( $event ) {
-		// Convert the event data into an array.
-		$event = explode( ',', $event );
-
-		// Convert the date to timestamp.
-		$timestamp = strtotime( $event[3] );
-
-		// Build event message.
-		$message = sprintf(
-			'%d. %s which will be held on %s at %s',
-			$event[2], // Add event name.
-			date( 'F j', $timestamp ), // Add the event data.
-			date( 'g:ia', $timestamp ) // Add the start hour.
-		);
-
-		return $message;
-	}
-
-	/**
-	 * Generate new sparql query based on user request.
-	 *
-	 * @return string The new sparql query
-	*/
-	public function build_sparql_query() {
-		$query = "
-			SELECT {$this->get_select()} WHERE {
-				BIND( <http://schema.org/Event> as ?type )
-				?subject a ?type ;
-				rdfs:label ?label ;
-				schema:description ?description ;
-				{$this->get_filter()}
-			}
-			LIMIT 1
-		";
-
-		return $query;
-	}
-
-	// TODO: Add conditional logic, based on questions
 	/**
 	 * Set in SPARQL query which fields the message needs
-	 * @return int The fields.
+	 * @return int The select clause.
 	 */
-	function get_select() {
-		return '?description';
+	public function get_select_clause() {
+		return 'SELECT ?description';
 	}
 
-	// TODO: Add conditional logic, based on questions
+	/**
+	 * Generate the limit clause for sparql query.
+	 *
+	 * @return string The limit clause.
+	 */
+	function get_limit_clause() {
+		// It's a single event so we will always return only one event.
+		return 'LIMIT 1';
+	}
+
 	/**
 	 * Set the filter in SPARQL query
 	 * so the events can be filtered by different params
 	 *
 	 * @return int The filter.
 	 */
-	function get_filter() {
-		$title = 'Making Websites Talk';
-		return "FILTER ( ?label='{$title}'@en )";
+	public function get_filter_clause() {
+		if ( $this->get_param( 'title' ) ) {
+			$title = $this->get_param( 'title' );
+			return "FILTER ( ?label='{$title}'@en )";
+		}
 	}
+
+	/**
+	 * Generate the limit clause for sparql query.
+	 *
+	 * @return string The limit clause.
+	 */
+	public function get_response_fields() {
+		$fields = "
+			?subject a ?type ;
+			rdfs:label ?label ;
+			schema:description ?description ;
+		";
+		// Return the fields.
+
+		return $fields;
+	}
+
 }
