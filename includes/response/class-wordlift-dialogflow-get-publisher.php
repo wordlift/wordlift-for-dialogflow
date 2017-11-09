@@ -54,7 +54,8 @@ class Wordlift_For_Dialogflow_Get_Publisher extends Wordlift_For_Dialogflow_Resp
 				'No thank you',
 			) );
 		} else {
-			$this->add_text_message( $publisher->post_content );
+			$text = get_sentences( $publisher->post_content, 0, 1 );
+			$this->add_text_message( $text );
 		}
 	}
 
