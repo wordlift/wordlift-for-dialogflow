@@ -24,17 +24,56 @@ class Wordlift_For_Dialogflow_Get_Event extends Wordlift_For_Dialogflow_Get_Even
 			return;
 		}
 
-		// Add the event information.
-		$this->add_text_message( $events[1] );
+		$this->add_event_message( $events );
 
-		// Add prompt heading.
-		$this->add_text_message( 'Would you like me to read you about another upcoming event from this website?' );
+	}
+	/**
+	 * Set the event message depending of the question
+	 * @param array $events The event data
+	 * @return void
+	 */
+	public function add_event_message( $events ) {
+		if ( $this->get_param( 'event-info' ) ) {
+			$message = $events[1];
+		} elseif ( $this->get_param( 'when' ) ) {
+			$message = $this->set_when_message( $events[1] );
+		} elseif ( $this->get_param( 'where' ) ) {
+			$message = $this->set_where_message( $events[1] );
+		}
 
-		// Add a follow up question.
-		$this->add_prompt_message( array(
-			'Sure',
-			'No thanks',
-		) );
+		$this->add_text_message( $message );
+	}
+
+	/**
+	 * Set the message for "Where" questions
+	 * @param array $event The event
+	 * @return string The message
+	 */
+	public function set_where_message( $event ) {
+		$event = explode( ',', $event );
+		$message = sprintf(
+			'The %s will be at %s',
+			$event[2],
+			$event[3]
+		);
+
+		return $message;
+	}
+
+	/**
+	 * Set the message for "When" questions
+	 * @param array $event The event
+	 * @return string The message
+	 */
+	public function set_when_message( $event ) {
+		$event = explode( ',', $event );
+		$message = sprintf(
+			'%s will start at %s',
+			$event[2],
+			date( 'g:ia', strtotime( $event[4] ) )
+		);
+
+		return $message;
 	}
 
 	/**
@@ -42,7 +81,13 @@ class Wordlift_For_Dialogflow_Get_Event extends Wordlift_For_Dialogflow_Get_Even
 	 * @return int The select clause.
 	 */
 	public function get_select_clause() {
-		return 'SELECT ?description';
+		$select = '*';
+
+		if ( $this->get_param( 'event-info' ) ) {
+			$select = '?description';
+		}
+
+		return "SELECT $select";
 	}
 
 	/**
@@ -62,8 +107,8 @@ class Wordlift_For_Dialogflow_Get_Event extends Wordlift_For_Dialogflow_Get_Even
 	 * @return int The filter.
 	 */
 	public function get_filter_clause() {
-		if ( $this->get_param( 'title' ) ) {
-			$title = $this->get_param( 'title' );
+		if ( $this->get_param( 'event' ) ) {
+			$title = $this->get_param( 'event' );
 			return "FILTER ( ?label='{$title}'@en )";
 		}
 	}
@@ -77,8 +122,18 @@ class Wordlift_For_Dialogflow_Get_Event extends Wordlift_For_Dialogflow_Get_Even
 		$fields = "
 			?subject a ?type ;
 			rdfs:label ?label ;
-			schema:description ?description ;
 		";
+
+		if ( $this->get_param( 'event-info' ) ) {
+			$fields .= "schema:description ?description ;";
+		} elseif ( $this->get_param( 'where' ) ) {
+			$fields .= "schema:location/dct:title ?place";
+		} else {
+			$fields .= "
+				schema:location ?location ;
+                schema:startDate ?startDate;
+            ";
+		}
 		// Return the fields.
 
 		return $fields;
