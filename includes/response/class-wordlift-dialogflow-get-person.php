@@ -25,11 +25,16 @@ class Wordlift_For_Dialogflow_Get_Person extends Wordlift_For_Dialogflow_Respons
 		}
 
 		if ( empty( $this->get_param( 'full-info' ) ) ) {
-			// Get first sentence only.
-			$text = get_sentences( $person->post_content, 0, 1 );
 
-			// Add the message.
-			$this->add_text_message( $text );
+			$this->add_text_message( 'This is what I\'ve found: ' );
+
+			// Add the person.
+			$this->add_basic_card_message(
+				$person->post_title, // Topic name.
+				$person->post_content, // Topic description.
+				$person->guid, // Link to the topic.
+				get_the_post_thumbnail_url( $person ) // Add the featured image.
+			);
 
 			// Add promp message
 			$this->add_text_message( 'Would you like to hear another fact?' );
@@ -42,7 +47,7 @@ class Wordlift_For_Dialogflow_Get_Person extends Wordlift_For_Dialogflow_Respons
 			) );
 		} else {
 			// Get next sentence and skip the first one.
-			$text = get_sentences( $person->post_content, 1, 1 );
+			$text = get_sentences( $person->post_content, 2, 2 );
 
 			$this->add_text_message( $text );
 		}
@@ -66,7 +71,7 @@ class Wordlift_For_Dialogflow_Get_Person extends Wordlift_For_Dialogflow_Respons
 
 		// SQL query that will retrieve the person description.
 		$query = "
-			SELECT p.post_content
+			SELECT p.*
 			FROM $wpdb->posts AS p
 			INNER JOIN $wpdb->terms AS t
 			INNER JOIN $wpdb->term_taxonomy AS tt
