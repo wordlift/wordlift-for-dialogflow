@@ -24,12 +24,14 @@ class Wordlift_For_Dialogflow_Get_Topic extends Wordlift_For_Dialogflow_Response
 			return;
 		}
 
-		$this->add_text_message( 'Here is some information: ' );
+		$text = get_sentences( $topic->post_content, 0, 2 );
+
+		$this->add_text_message( $text );
 
 		// Add the topic.
 		$this->add_basic_card_message(
 			$topic->post_title, // Topic name.
-			$topic->post_content, // Topic description.
+			$text, // Topic description.
 			$topic->guid, // Link to the topic.
 			get_the_post_thumbnail_url( $topic ) // Add the featured image.
 		);

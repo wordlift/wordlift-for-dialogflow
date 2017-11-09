@@ -26,12 +26,14 @@ class Wordlift_For_Dialogflow_Get_Person extends Wordlift_For_Dialogflow_Respons
 
 		if ( empty( $this->get_param( 'full-info' ) ) ) {
 
-			$this->add_text_message( 'This is what I\'ve found: ' );
+			$text = get_sentences( $person->post_content, 0, 2 );
+
+			$this->add_text_message( $text );
 
 			// Add the person.
 			$this->add_basic_card_message(
 				$person->post_title, // Topic name.
-				$person->post_content, // Topic description.
+				$text, // Topic description.
 				$person->guid, // Link to the topic.
 				get_the_post_thumbnail_url( $person ) // Add the featured image.
 			);

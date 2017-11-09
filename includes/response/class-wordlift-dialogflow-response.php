@@ -224,7 +224,6 @@ abstract class Wordlift_For_Dialogflow_Response {
 	 * @return void
 	 */
 	public function add_basic_card_message( $title, $text, $link, $image = '' ) {
-		$text = get_sentences( $text, 0, 2 );
 		// Build the response message.
 		$message = array(
 			'type'           => 'basic_card',

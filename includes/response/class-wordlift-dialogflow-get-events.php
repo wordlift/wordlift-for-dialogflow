@@ -25,7 +25,10 @@ class Wordlift_For_Dialogflow_Get_Events extends Wordlift_For_Dialogflow_Respons
 		}
 
 		// Add intro message.
-		$this->add_text_message( 'Here is a list with all upcoming events. Would you like me to read you about one of these events?' );
+		$this->add_text_message( 'Here is a list with all upcoming events.' );
+
+		// Add intro message.
+		$this->add_text_message( $this->get_event_names() . '. Would you like me to read you about one of these events?' );
 
 		// Add the list of events.
 		$this->add_list_message( $events );
@@ -117,6 +120,28 @@ class Wordlift_For_Dialogflow_Get_Events extends Wordlift_For_Dialogflow_Respons
 
 		// Finally return the object.
 		return $message_object;
+	}
+
+	/**
+	 * Return the event names.
+	 *
+	 *  @return string The event names
+	 */
+	public function get_event_names() {
+
+		$events = $this->get_events();
+
+		foreach ( $events as $index => $event ) {
+			if ( ! $index ) {
+				continue;
+			}
+			$event = explode( ',', $event );
+
+			$names[] = $event[2];
+		}
+
+		// Finally return the names.
+		return implode(', ', $names);
 	}
 
 	/**

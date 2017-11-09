@@ -18,6 +18,8 @@ class Wordlift_For_Dialogflow_Get_Website_Info extends Wordlift_For_Dialogflow_R
 	public function generate_response() {
 		$topics = $this->get_topics();
 
+		$topic_names = $this->get_topics_data();
+
 		// Return error message if there are no topics found.
 		if ( empty( $topics ) ) {
 			$this->set_speech( 'I am afraid WordLift has not been used yet to analyze the content of this website' );
@@ -25,7 +27,7 @@ class Wordlift_For_Dialogflow_Get_Website_Info extends Wordlift_For_Dialogflow_R
 		}
 
 		// Add intro message.
-		$this->add_text_message( 'The primary topics of this website include: ' );
+		$this->add_text_message( 'The primary topics of this website include: ' . implode(', ', $topic_names) );
 
 		// Add the topics.
 		$this->add_list_message( $topics );
