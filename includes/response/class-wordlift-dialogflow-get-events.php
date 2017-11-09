@@ -107,6 +107,14 @@ class Wordlift_For_Dialogflow_Get_Events extends Wordlift_For_Dialogflow_Respons
 			),
 		);
 
+		//Check if the event has an image and add it to the message object.
+		if ( ! empty( $event[4] ) ) {
+			$message_object['image'] = array(
+				'url'               => $event[4],  // Add event image.
+				'accessibilityText' => ' ', // We need to add this, because the assistant triggers an error.
+			);
+		}
+
 		// Finally return the object.
 		return $message_object;
 	}
@@ -187,6 +195,7 @@ class Wordlift_For_Dialogflow_Get_Events extends Wordlift_For_Dialogflow_Respons
 			?subject a ?type ;
 			rdfs:label ?label ;
 			schema:startDate ?startDate .
+			OPTIONAL { ?subject schema:image ?image }
 		";
 		// Return the fields.
 
