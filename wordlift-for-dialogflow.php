@@ -64,6 +64,7 @@ require plugin_dir_path( __FILE__ ) . 'includes/response/class-wordlift-dialogfl
 require plugin_dir_path( __FILE__ ) . 'includes/response/class-wordlift-dialogflow-get-events.php';
 require plugin_dir_path( __FILE__ ) . 'includes/response/class-wordlift-dialogflow-get-event.php';
 require plugin_dir_path( __FILE__ ) . 'includes/response/class-wordlift-dialogflow-get-person.php';
+require plugin_dir_path( __FILE__ ) . 'includes/response/class-wordlift-dialogflow-get-topic.php';
 require plugin_dir_path( __FILE__ ) . 'includes/response/class-wordlift-dialogflow-get-publisher.php';
 require plugin_dir_path( __FILE__ ) . 'includes/response/class-wordlift-dialogflow-get-website-info.php';
 
