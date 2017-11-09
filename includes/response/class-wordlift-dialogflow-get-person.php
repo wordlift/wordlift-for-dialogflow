@@ -41,7 +41,7 @@ class Wordlift_For_Dialogflow_Get_Person extends Wordlift_For_Dialogflow_Respons
 				'No thanks',
 			) );
 		} else {
-			// Get all sentences except the first one.
+			// Get next sentence and skip the first one.
 			$text = get_sentences( $person->post_content, 1, 1 );
 
 			$this->add_text_message( $text );

@@ -217,6 +217,42 @@ abstract class Wordlift_For_Dialogflow_Response {
 	}
 
 	/**
+	 * Add list message.
+	 *
+	 * @param array $list The list that will be displayed.
+	 *
+	 * @return void
+	 */
+	public function add_basic_card_message( $title, $text, $link, $image = '' ) {
+		$text = get_sentences( $text, 0, 2 );
+		// Build the response message.
+		$message = array(
+			'type'           => 'basic_card',
+			'title'          => $title,
+			'formattedText'  => $text,
+			'buttons'        => array(
+				array(
+					'openUrlAction' => array(
+						'url' => $link,
+					),
+					'title' => $title,
+				),
+			),
+		);
+
+		// Add image to the message.
+		if ( ! empty( $image ) ) {
+			$message['image'] = array(
+				'url'               => $image,
+				'accessibilityText' => ' ', // We need to add this, because the assistant triggers an error.
+			);
+		}
+
+		// Set the response messages.
+		$this->response['messages'][] = $message;
+	}
+
+	/**
 	 * Add response messages.
 	 *
 	 * @param array $labels The reply options.
