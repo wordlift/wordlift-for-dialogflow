@@ -25,10 +25,7 @@ class Wordlift_For_Dialogflow_Get_Events extends Wordlift_For_Dialogflow_Respons
 		}
 
 		// Add intro message.
-		$this->add_text_message( 'Here is a list with all upcoming events.' );
-
-		// Add intro message.
-		$this->add_text_message( $this->get_event_names() . '. Would you like me to read you about one of these events?' );
+		$this->add_text_message( 'Here is a list with all upcoming events.' . $this->get_event_names() . '. Would you like me to read you about one of these events?' );
 
 		// Add the list of events.
 		$this->add_list_message( $events );

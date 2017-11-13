@@ -32,7 +32,7 @@ class Wordlift_For_Dialogflow_Get_Topic extends Wordlift_For_Dialogflow_Response
 		$this->add_basic_card_message(
 			$topic->post_title, // Topic name.
 			$text, // Topic description.
-			$topic->guid, // Link to the topic.
+			get_permalink( $topic ), // Link to the topic.
 			get_the_post_thumbnail_url( $topic ) // Add the featured image.
 		);
 	}

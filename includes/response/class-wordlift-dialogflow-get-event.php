@@ -66,11 +66,14 @@ class Wordlift_For_Dialogflow_Get_Event extends Wordlift_For_Dialogflow_Get_Even
 	 * @return string The message
 	 */
 	public function set_when_message( $event ) {
-		$event = explode( ',', $event );
+		$event     = explode( ',', $event );
+		$timestamp = strtotime( $event[4] );
+
 		$message = sprintf(
-			'%s will start at %s',
+			'%s will start on %s at %s',
 			$event[2],
-			date( 'g:ia', strtotime( $event[4] ) )
+			date( 'F j', $timestamp ), // Add the event data.
+			date( 'g:ia', $timestamp ) // Add the time.
 		);
 
 		return $message;

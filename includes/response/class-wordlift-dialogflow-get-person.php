@@ -24,9 +24,12 @@ class Wordlift_For_Dialogflow_Get_Person extends Wordlift_For_Dialogflow_Respons
 			return;
 		}
 
+		// Get person content.
+		$person_content = get_sentences( $person->post_content, 1, 1 );
+
 		if ( empty( $this->get_param( 'full-info' ) ) ) {
 
-			$text = get_sentences( $person->post_content, 0, 2 );
+			$text = get_sentences( $person->post_content, 0, 1 );
 
 			$this->add_text_message( $text );
 
@@ -34,24 +37,25 @@ class Wordlift_For_Dialogflow_Get_Person extends Wordlift_For_Dialogflow_Respons
 			$this->add_basic_card_message(
 				$person->post_title, // Topic name.
 				$text, // Topic description.
-				$person->guid, // Link to the topic.
+				get_permalink( $person), // Link to the topic.
 				get_the_post_thumbnail_url( $person ) // Add the featured image.
 			);
 
-			// Add promp message
-			$this->add_text_message( 'Would you like to hear another fact?' );
+			if ( ! empty( $person_content ) ) {
+				// Add promp message
+				$this->add_text_message( 'Would you like to hear another fact?' );
 
-			// Add promp options.
-			// TODO: We need to find a way to create this prompt message dynamically
-			$this->add_prompt_message( array(
-				'Yes please',
-				'No thanks',
-			) );
+				// Add promp options.
+				// TODO: We need to find a way to create this prompt message dynamically
+				$this->add_prompt_message( array(
+					'Yes please',
+					'No thanks',
+				) );
+			}
 		} else {
-			// Get next sentence and skip the first one.
-			$text = get_sentences( $person->post_content, 2, 2 );
-
-			$this->add_text_message( $text );
+			if ( ! empty( $person_content ) ) {
+				$this->add_text_message( $person_content );
+			}
 		}
 
 	}
