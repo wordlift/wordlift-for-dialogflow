@@ -24,73 +24,73 @@ class Wordlift_For_Dialogflow_Get_Event extends Wordlift_For_Dialogflow_Get_Even
 			return;
 		}
 
-		$this->add_event_message( $events );
-
+		// Add event massage, based on the request.
+		$this->add_event_message( $events[0] );
 	}
+
 	/**
 	 * Set the event message depending of the question
-	 * @param array $events The event data
+	 * @param array $event The event data
 	 * @return void
 	 */
-	public function add_event_message( $events ) {
+	public function add_event_message( $event ) {
 		if ( $this->get_param( 'event-info' ) ) {
-			$message = $events[1];
+			// Get event first sentence
+			$text = get_sentences( $event['description']['value'], 0, 2 );
+
+			// Add the event name as first message.
+			$this->add_text_message( $event['label']['value'] );
+
 		} elseif ( $this->get_param( 'when' ) ) {
-			$message = $this->set_when_message( $events[1] );
+			$text = $this->get_when_message( $event );
 		} elseif ( $this->get_param( 'where' ) ) {
-			$message = $this->set_where_message( $events[1] );
+			$text = $this->get_where_message( $event );
 		}
 
-		$this->add_text_message( $message );
+		// Add the speech.
+		$this->add_text_message( $text );
+
+		// Add the event card iamge.
+		$this->add_basic_card_message(
+			$event['label']['value'], // Event name.
+			$text, // Event description.
+			$this->get_permalink( $event['subject']['value'] ), // Link to the topic.
+			$event['image']['value'] // Add the featured image.
+		);
 	}
 
 	/**
-	 * Set the message for "Where" questions
+	 * Get the message for "Where" questions
 	 * @param array $event The event
 	 * @return string The message
 	 */
-	public function set_where_message( $event ) {
-		$event = explode( ',', $event );
+	public function get_where_message( $event ) {
 		$message = sprintf(
 			'The %s will be at %s',
-			$event[2],
-			$event[3]
+			$event['label']['value'],
+			$event['place']['value']
 		);
 
 		return $message;
 	}
 
 	/**
-	 * Set the message for "When" questions
+	 * Get the message for "When" questions
 	 * @param array $event The event
 	 * @return string The message
 	 */
-	public function set_when_message( $event ) {
-		$event     = explode( ',', $event );
-		$timestamp = strtotime( $event[4] );
+	public function get_when_message( $event ) {
+		// Convert the date string to timestamp.
+		$timestamp = strtotime( $event['startDate']['value'] );
 
 		$message = sprintf(
 			'%s will start on %s at %s',
-			$event[2],
+			$event['label']['value'],
 			date( 'F j', $timestamp ), // Add the event data.
 			date( 'g:ia', $timestamp ) // Add the time.
 		);
 
 		return $message;
-	}
-
-	/**
-	 * Set in SPARQL query which fields the message needs
-	 * @return int The select clause.
-	 */
-	public function get_select_clause() {
-		$select = '*';
-
-		if ( $this->get_param( 'event-info' ) ) {
-			$select = '?description';
-		}
-
-		return "SELECT $select";
 	}
 
 	/**
@@ -114,32 +114,36 @@ class Wordlift_For_Dialogflow_Get_Event extends Wordlift_For_Dialogflow_Get_Even
 			$title = $this->get_param( 'event' );
 			return "FILTER ( ?label='{$title}'@en )";
 		}
+
+		return parent::get_filter_clause();
 	}
 
 	/**
-	 * Generate the limit clause for sparql query.
+	 * Get the event permalink using entity_url meta value
 	 *
-	 * @return string The limit clause.
+	 * @param string $meta_value The entity url.
+	 * @return mixed The filter.
 	 */
-	public function get_response_fields() {
-		$fields = "
-			?subject a ?type ;
-			rdfs:label ?label ;
+	public function get_permalink( $meta_value ) {
+		// Get the global $wpdp.
+		global $wpdb;
+
+		// The query to retrieve the post id.
+		$sql = "
+			SELECT post_id
+			FROM $wpdb->postmeta 
+			WHERE meta_key = 'entity_url'
+			AND meta_value = '{$meta_value}'
 		";
 
-		if ( $this->get_param( 'event-info' ) ) {
-			$fields .= "schema:description ?description ;";
-		} elseif ( $this->get_param( 'where' ) ) {
-			$fields .= "schema:location/dct:title ?place";
-		} else {
-			$fields .= "
-				schema:location ?location ;
-                schema:startDate ?startDate;
-            ";
+		// Make a database request.
+		$results = $wpdb->get_results( $sql );
+
+		// Return permalink if the post id is found.
+		if ( ! empty( $results ) ) {
+			return get_permalink( $results[0]->post_id );
 		}
-		// Return the fields.
-
-		return $fields;
+		
+		return false;
 	}
-
 }

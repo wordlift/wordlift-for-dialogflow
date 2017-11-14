@@ -30,9 +30,6 @@ abstract class Wordlift_For_Dialogflow_Response_Spqrql extends Wordlift_For_Dial
 	public function __construct( $request ) {
 		parent::__construct( $request );
 
-		// Set the SPARQL service.
-		$this->set_sparql_service();
-
 		// Build the query.
 		$query = $this->build_sparql_query();
 
@@ -41,31 +38,57 @@ abstract class Wordlift_For_Dialogflow_Response_Spqrql extends Wordlift_For_Dial
 	}
 
 	/**
-	 * Setup the sparql service.
-	 *
-	 * @access public
-	 * @abstract
-	 */
-	public function set_sparql_service() {
-		$this->sparql_service = new Wordlift_Sparql_Service();
-	}
-
-	/**
 	 * Make the SPARQL request and return the result if there is such
 	 * @return mixed The response body or false if it fails.
 	 */
 	public function get_result() {
 		// Get query result;
-		$result = $this->sparql_service->select( $this->sparql_query );
+		$result = $this->select( $this->sparql_query );
 		// Retrieve the request body.
 		$body = wp_remote_retrieve_body( $result );
+
+		$body = json_decode( $body, true );
 
 		// Bail if the query fails.
 		if ( $body == 'query not supported' ) {
 			return false;
 		}
 
-		return $body;
+		return $body['results']['bindings'];
+	}
+
+	/**
+	 * This is a copy of WordLift Sprql service select method
+	 * but it return json response.
+	 * 
+	 * @param string $query The SELECT query to execute.
+	 *
+	 * @return WP_Error|array The response or WP_Error on failure.
+	 */
+	public function select( $query ) {
+
+		// Prepare the SPARQL statement by prepending the default namespaces.
+		$sparql = rl_sparql_prefixes() . "\n" . $query;
+
+		// Get the SPARQL SELECT URL.
+		$url = 'https://api.redlink.io/1.0/data/wl0301/sparql/select';
+
+		$url = add_query_arg(
+			array(
+				'key' => WL_DIALOGFLOW_KEY,
+				'out' => 'json',
+			),
+			$url
+		);
+
+		$args = array(
+			'method' => 'POST',
+			'body'   => array(
+				'query' => $sparql,
+			),
+		);
+
+		return wp_remote_post( $url, $args );
 	}
  
 	/**

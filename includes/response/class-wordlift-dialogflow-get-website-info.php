@@ -27,13 +27,10 @@ class Wordlift_For_Dialogflow_Get_Website_Info extends Wordlift_For_Dialogflow_R
 		}
 
 		// Add intro message.
-		$this->add_text_message( 'The primary topics of this website include: ' . implode(', ', $topic_names) );
+		$this->add_text_message( 'The primary topics of this website include: ' . implode( ', ', $topic_names ) . 'Please choose one if you want more information about it.' );
 
 		// Add the topics.
 		$this->add_list_message( $topics );
-
-		// Add intro message.
-		$this->add_text_message( 'Please choose one if you want more information about it.' );
 	}
 
 	/**

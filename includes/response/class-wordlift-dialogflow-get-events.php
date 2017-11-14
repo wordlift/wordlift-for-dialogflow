@@ -50,8 +50,6 @@ class Wordlift_For_Dialogflow_Get_Events extends Wordlift_For_Dialogflow_Respons
 		if ( empty( $events ) ) {
 			return false;
 		}
-		// Parse the response into an array.
-		$events = str_getcsv( $events, PHP_EOL );
 
 		// Return the events.
 		return $events;
@@ -69,13 +67,7 @@ class Wordlift_For_Dialogflow_Get_Events extends Wordlift_For_Dialogflow_Respons
 		$events = $this->get_events();
 
 		// Loop through all events and get formatted dates.
-		foreach ( $events as $index => $event ) {
-			// Bail if this is the first row 
-			// because it contains the headings only, not an event data.
-			if ( ! $index ) {
-				continue;
-			}
-
+		foreach ( $events as $event ) {
 			// Put event information in messages array.
 			$messages[] = $this->get_message_object( $event );
 		}
@@ -92,15 +84,12 @@ class Wordlift_For_Dialogflow_Get_Events extends Wordlift_For_Dialogflow_Respons
 	 * @return string $message_object Array of event details.
 	 */
 	public function get_message_object( $event ) {
-		// Convert the event data into an array.
-		$event = explode( ',', $event );
-
 		// Generate unique key id, based on event title.
-		$key = strtoupper( sanitize_title( $event[2] ) );
+		$key = strtoupper( sanitize_title( $event['label']['value'] ) );
 
 		// Message object that will be read from Google.
-		$message_object =  array(
-			'title'       => $event[2], // Add message title.
+		$message_object = array(
+			'title'       => $event['label']['value'], // Add message title.
 			'description' => $this->get_event_message( $event ), // Add the message.
 			'optionInfo'  => array(
 				'key' => $key, // Add the event key.
@@ -108,9 +97,9 @@ class Wordlift_For_Dialogflow_Get_Events extends Wordlift_For_Dialogflow_Respons
 		);
 
 		//Check if the event has an image and add it to the message object.
-		if ( ! empty( $event[4] ) ) {
+		if ( ! empty( $event['image']['value'] ) ) {
 			$message_object['image'] = array(
-				'url'               => $event[4],  // Add event image.
+				'url'               => $event['image']['value'],  // Add event image.
 				'accessibilityText' => ' ', // We need to add this, because the assistant triggers an error.
 			);
 		}
@@ -125,20 +114,16 @@ class Wordlift_For_Dialogflow_Get_Events extends Wordlift_For_Dialogflow_Respons
 	 *  @return string The event names
 	 */
 	public function get_event_names() {
-
+		// Get events data.
 		$events = $this->get_events();
 
-		foreach ( $events as $index => $event ) {
-			if ( ! $index ) {
-				continue;
-			}
-			$event = explode( ',', $event );
-
-			$names[] = $event[2];
+		// Loop through all events and get event names.
+		foreach ( $events as $event ) {
+			$names[] = $event['label']['value'];
 		}
 
 		// Finally return the names.
-		return implode(', ', $names);
+		return implode( ', ', $names );
 	}
 
 	/**
@@ -150,7 +135,7 @@ class Wordlift_For_Dialogflow_Get_Events extends Wordlift_For_Dialogflow_Respons
 	 */
 	public function get_event_message( $event ) {
 		// Convert the date to timestamp.
-		$timestamp = strtotime( $event[3] );
+		$timestamp = strtotime( $event['startDate']['value'] );
 
 		// Build event message.
 		$message = sprintf(
@@ -182,6 +167,7 @@ class Wordlift_For_Dialogflow_Get_Events extends Wordlift_For_Dialogflow_Respons
 				{$this->get_response_fields()}
 				{$this->get_filter_clause()}
 			}
+			ORDER BY ASC (?startDate)
 		";
 
 		return $where;
@@ -216,11 +202,14 @@ class Wordlift_For_Dialogflow_Get_Events extends Wordlift_For_Dialogflow_Respons
 		$fields = "
 			?subject a ?type ;
 			rdfs:label ?label ;
+			schema:description ?description ;
+			schema:location/dct:title ?place ;
 			schema:startDate ?startDate .
-			OPTIONAL { ?subject schema:image ?image }
+			OPTIONAL { ?subject schema:image ?image } .
 		";
 		// Return the fields.
 
 		return $fields;
 	}
 }
+

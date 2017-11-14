@@ -37,7 +37,7 @@ class Wordlift_For_Dialogflow_Get_Person extends Wordlift_For_Dialogflow_Respons
 			$this->add_basic_card_message(
 				$person->post_title, // Topic name.
 				$text, // Topic description.
-				get_permalink( $person), // Link to the topic.
+				get_permalink( $person ), // Link to the topic.
 				get_the_post_thumbnail_url( $person ) // Add the featured image.
 			);
 
