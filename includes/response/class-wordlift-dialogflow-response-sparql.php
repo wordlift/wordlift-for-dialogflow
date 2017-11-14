@@ -1,5 +1,4 @@
 <?php
-
 /**
  *
  * @link       https://github.com/stoyan0v
@@ -7,26 +6,20 @@
  *
  * @package    Wordlift_For_Dialogflow
  * @subpackage Wordlift_For_Dialogflow/response
-*/
+ */
 abstract class Wordlift_For_Dialogflow_Response_Spqrql extends Wordlift_For_Dialogflow_Response {
-
-	/**
-	 * The {@link Wordlift_Sparql_Service} instance.
-	 *
-	 * @since  1.0.0
-	 * @access private
-	 * @var \Wordlift_Sparql_Service $sparql_service The {@link Wordlift_Sparql_Service} instance.
-	 */
-	private $sparql_service;
-
 	/**
 	 * The SPARQL query.
 	 *
 	 * @since  1.0.0
 	 * @access private
+	 * @var The sparql query that we will use to retrieve people, events, topcis etc.
 	 */
 	private $sparql_query;
 
+	/**
+	 * {@inheritDoc}
+	 */
 	public function __construct( $request ) {
 		parent::__construct( $request );
 
@@ -39,10 +32,11 @@ abstract class Wordlift_For_Dialogflow_Response_Spqrql extends Wordlift_For_Dial
 
 	/**
 	 * Make the SPARQL request and return the result if there is such
+	 *
 	 * @return mixed The response body or false if it fails.
 	 */
 	public function get_result() {
-		// Get query result;
+		// Get query result.
 		$result = $this->select( $this->sparql_query );
 		// Retrieve the request body.
 		$body = wp_remote_retrieve_body( $result );
@@ -50,7 +44,7 @@ abstract class Wordlift_For_Dialogflow_Response_Spqrql extends Wordlift_For_Dial
 		$body = json_decode( $body, true );
 
 		// Bail if the query fails.
-		if ( $body == 'query not supported' ) {
+		if ( 'query not supported' == $body ) {
 			return false;
 		}
 
@@ -60,7 +54,7 @@ abstract class Wordlift_For_Dialogflow_Response_Spqrql extends Wordlift_For_Dial
 	/**
 	 * This is a copy of WordLift Sprql service select method
 	 * but it return json response.
-	 * 
+	 *
 	 * @param string $query The SELECT query to execute.
 	 *
 	 * @return WP_Error|array The response or WP_Error on failure.
@@ -90,18 +84,16 @@ abstract class Wordlift_For_Dialogflow_Response_Spqrql extends Wordlift_For_Dial
 
 		return wp_remote_post( $url, $args );
 	}
- 
+
 	/**
 	 * Sets the The SPARQL query.
 	 *
-	 * @param string $sparql_query The sparql query
-	 *
-	 * @return self
-	*/
+	 * @param string $sparql_query The sparql query.
+	 */
 	public function set_sparql_query( $sparql_query ) {
 		$this->sparql_query = $sparql_query;
 	}
- 
+
 	/**
 	 * Gets the The SPARQL query.
 	 *
@@ -115,7 +107,7 @@ abstract class Wordlift_For_Dialogflow_Response_Spqrql extends Wordlift_For_Dial
 	 * Generate new sparql query based on user request.
 	 *
 	 * @return string The new sparql query
-	*/
+	 */
 	public function build_sparql_query() {
 		return $this->get_select_clause() . $this->get_where_clause() . $this->get_limit_clause();
 	}

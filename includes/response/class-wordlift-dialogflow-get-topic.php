@@ -7,7 +7,7 @@
  *
  * @package    Wordlift_For_Dialogflow
  * @subpackage Wordlift_For_Dialogflow/response
-*/
+ */
 class Wordlift_For_Dialogflow_Get_Topic extends Wordlift_For_Dialogflow_Response {
 	/**
 	 * Return the response.

@@ -1,13 +1,14 @@
 <?php
-
 /**
+ * The file that defines the Wordlift_For_Dialogflow_Get_Events.
+ * Next events query will be handled by this class.
  *
  * @link       https://github.com/stoyan0v
  * @since      1.0.0
  *
  * @package    Wordlift_For_Dialogflow
  * @subpackage Wordlift_For_Dialogflow/response
-*/
+ */
 class Wordlift_For_Dialogflow_Get_Events extends Wordlift_For_Dialogflow_Response_Spqrql {
 	/**
 	 * Return the response.
@@ -34,13 +35,14 @@ class Wordlift_For_Dialogflow_Get_Events extends Wordlift_For_Dialogflow_Respons
 		// TODO: We need to find a way to create this prompt message dynamically.
 		$this->add_prompt_message( array(
 			'Sure',
-			'No thanks'
+			'No thanks',
 		) );
 	}
 
 	/**
 	 * Get events from SPARQL request
-	 * @return type
+	 *
+	 * @return array $events Array of all upcoming events.
 	 */
 	public function get_events() {
 		// Get query result.
@@ -57,6 +59,7 @@ class Wordlift_For_Dialogflow_Get_Events extends Wordlift_For_Dialogflow_Respons
 
 	/**
 	 * Get events objects
+	 *
 	 * @return array $messages Array of message objects
 	 */
 	public function get_event_messages() {
@@ -79,7 +82,7 @@ class Wordlift_For_Dialogflow_Get_Events extends Wordlift_For_Dialogflow_Respons
 	/**
 	 * Creates event message object that will be passed to Google.
 	 *
-	 * @param array $event Array of event information
+	 * @param array $event Array of event information.
 	 *
 	 * @return string $message_object Array of event details.
 	 */
@@ -96,7 +99,7 @@ class Wordlift_For_Dialogflow_Get_Events extends Wordlift_For_Dialogflow_Respons
 			),
 		);
 
-		//Check if the event has an image and add it to the message object.
+		// Check if the event has an image and add it to the message object.
 		if ( ! empty( $event['image']['value'] ) ) {
 			$message_object['image'] = array(
 				'url'               => $event['image']['value'],  // Add event image.
@@ -129,7 +132,7 @@ class Wordlift_For_Dialogflow_Get_Events extends Wordlift_For_Dialogflow_Respons
 	/**
 	 * Creates event message from event data.
 	 *
-	 * @param array $event Array of event information
+	 * @param array $event Array of event information.
 	 *
 	 * @return string $message Human readable message.
 	 */
@@ -148,17 +151,18 @@ class Wordlift_For_Dialogflow_Get_Events extends Wordlift_For_Dialogflow_Respons
 	}
 
 	/**
-	 * Set in SPARQL query which fields the message needs
-	 * @return int The fields.
+	 * Adds sparql query select clause.
+	 *
+	 * @return string The select statement.
 	 */
 	public function get_select_clause() {
 		return 'SELECT * ';
 	}
 
-	// TODO: Add conditional logic, based on questions
 	/**
-	 * Set in SPARQL query which fields the message needs
-	 * @return int The fields.
+	 * Adds sparql query where clause.
+	 *
+	 * @return string The where statement.
 	 */
 	public function get_where_clause() {
 		$where = "
@@ -174,8 +178,7 @@ class Wordlift_For_Dialogflow_Get_Events extends Wordlift_For_Dialogflow_Respons
 	}
 
 	/**
-	 * Set the filter in SPARQL query
-	 * so the events can be filtered by different params.
+	 * Adds sparql query filter clause.
 	 *
 	 * @return string The filter.
 	 */
@@ -184,7 +187,7 @@ class Wordlift_For_Dialogflow_Get_Events extends Wordlift_For_Dialogflow_Respons
 	}
 
 	/**
-	 * Generate the limit clause for sparql query.
+	 * Adds sparql query limit clause.
 	 *
 	 * @return string The limit clause.
 	 */
@@ -199,17 +202,16 @@ class Wordlift_For_Dialogflow_Get_Events extends Wordlift_For_Dialogflow_Respons
 	 * @return string The limit clause.
 	 */
 	public function get_response_fields() {
-		$fields = "
+		$fields = '
 			?subject a ?type ;
 			rdfs:label ?label ;
 			schema:description ?description ;
 			schema:location/dct:title ?place ;
 			schema:startDate ?startDate .
 			OPTIONAL { ?subject schema:image ?image } .
-		";
-		// Return the fields.
+		';
 
+		// Return the fields.
 		return $fields;
 	}
 }
-

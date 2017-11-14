@@ -1,13 +1,14 @@
 <?php
-
 /**
+ * The file that defines the Wordlift_For_Dialogflow_Get_Event.
+ * All single event request will be handled by this class.
  *
  * @link       https://github.com/stoyan0v
  * @since      1.0.0
  *
  * @package    Wordlift_For_Dialogflow
  * @subpackage Wordlift_For_Dialogflow/response
-*/
+ */
 class Wordlift_For_Dialogflow_Get_Event extends Wordlift_For_Dialogflow_Get_Events {
 	/**
 	 * Return the response.
@@ -30,12 +31,13 @@ class Wordlift_For_Dialogflow_Get_Event extends Wordlift_For_Dialogflow_Get_Even
 
 	/**
 	 * Set the event message depending of the question
-	 * @param array $event The event data
+	 *
+	 * @param array $event The event data.
 	 * @return void
 	 */
 	public function add_event_message( $event ) {
 		if ( $this->get_param( 'event-info' ) ) {
-			// Get event first sentence
+			// Get event first sentence.
 			$text = get_sentences( $event['description']['value'], 0, 2 );
 
 			// Add the event name as first message.
@@ -61,7 +63,8 @@ class Wordlift_For_Dialogflow_Get_Event extends Wordlift_For_Dialogflow_Get_Even
 
 	/**
 	 * Get the message for "Where" questions
-	 * @param array $event The event
+	 *
+	 * @param array $event The event.
 	 * @return string The message
 	 */
 	public function get_where_message( $event ) {
@@ -76,7 +79,8 @@ class Wordlift_For_Dialogflow_Get_Event extends Wordlift_For_Dialogflow_Get_Even
 
 	/**
 	 * Get the message for "When" questions
-	 * @param array $event The event
+	 *
+	 * @param array $event The event.
 	 * @return string The message
 	 */
 	public function get_when_message( $event ) {
@@ -143,7 +147,8 @@ class Wordlift_For_Dialogflow_Get_Event extends Wordlift_For_Dialogflow_Get_Even
 		if ( ! empty( $results ) ) {
 			return get_permalink( $results[0]->post_id );
 		}
-		
+
+		// There is no event id found, so return false.
 		return false;
 	}
 }

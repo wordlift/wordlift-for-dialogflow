@@ -7,7 +7,7 @@
  *
  * @package    Wordlift_For_Dialogflow
  * @subpackage Wordlift_For_Dialogflow/response
-*/
+ */
 class Wordlift_For_Dialogflow_Get_Website_Info extends Wordlift_For_Dialogflow_Response {
 	/**
 	 * Return the response.
@@ -78,7 +78,7 @@ class Wordlift_For_Dialogflow_Get_Website_Info extends Wordlift_For_Dialogflow_R
 		// Get topic titles from database.
 		$topics = $this->get_topics_data();
 
-		// Loop throught all topic and build the message object
+		// Loop throught all topic and build the message object.
 		foreach ( $topics as $topic ) {
 			$topic_messages[] = $this->get_topic_object( $topic );
 		}
@@ -90,7 +90,7 @@ class Wordlift_For_Dialogflow_Get_Website_Info extends Wordlift_For_Dialogflow_R
 	/**
 	 * Creates topic message object that will be passed to Google.
 	 *
-	 * @param string $topic The topic title
+	 * @param string $topic The topic title.
 	 *
 	 * @return string $message_object Array of topic details.
 	 */

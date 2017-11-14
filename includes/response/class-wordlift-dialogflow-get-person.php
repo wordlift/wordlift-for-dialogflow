@@ -1,13 +1,14 @@
 <?php
-
 /**
+ * The file that defines the Wordlift_For_Dialogflow_Get_Person.
+ * Add person search will be handled by this file
  *
  * @link       https://github.com/stoyan0v
  * @since      1.0.0
  *
  * @package    Wordlift_For_Dialogflow
  * @subpackage Wordlift_For_Dialogflow/response
-*/
+ */
 class Wordlift_For_Dialogflow_Get_Person extends Wordlift_For_Dialogflow_Response {
 
 	/**
@@ -42,11 +43,11 @@ class Wordlift_For_Dialogflow_Get_Person extends Wordlift_For_Dialogflow_Respons
 			);
 
 			if ( ! empty( $person_content ) ) {
-				// Add promp message
+				// Add promp message.
 				$this->add_text_message( 'Would you like to hear another fact?' );
 
 				// Add promp options.
-				// TODO: We need to find a way to create this prompt message dynamically
+				// TODO: We need to find a way to create this prompt message dynamically.
 				$this->add_prompt_message( array(
 					'Yes please',
 					'No thanks',
@@ -62,6 +63,7 @@ class Wordlift_For_Dialogflow_Get_Person extends Wordlift_For_Dialogflow_Respons
 
 	/**
 	 * Retrive the person entity from database.
+	 *
 	 * @return objects The entity post object.
 	 */
 	public function get_person() {
@@ -70,7 +72,7 @@ class Wordlift_For_Dialogflow_Get_Person extends Wordlift_For_Dialogflow_Respons
 		$types = Wordlift_Entity_Service::valid_entity_post_types();
 
 		// Implode the types, so they can be passed to SQL query.
-		$types = implode("', '", $types);
+		$types = implode( "', '", $types );
 
 		// The person title, that we are looking for.
 		$title = $this->get_param( 'person' );
@@ -92,7 +94,7 @@ class Wordlift_For_Dialogflow_Get_Person extends Wordlift_For_Dialogflow_Respons
 			LIMIT 1
 		";
 
-		// Get the result
+		// Get the result.
 		$result = $wpdb->get_results( $query );
 
 		// Return the person or empty array.

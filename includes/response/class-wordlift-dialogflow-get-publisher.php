@@ -7,7 +7,7 @@
  *
  * @package    Wordlift_For_Dialogflow
  * @subpackage Wordlift_For_Dialogflow/response
-*/
+ */
 class Wordlift_For_Dialogflow_Get_Publisher extends Wordlift_For_Dialogflow_Response {
 
 	/**
@@ -19,6 +19,9 @@ class Wordlift_For_Dialogflow_Get_Publisher extends Wordlift_For_Dialogflow_Resp
 	 */
 	private $configuration_service;
 
+	/**
+	 * {@inheritDoc}
+	 */
 	public function __construct( $request ) {
 		parent::__construct( $request );
 
@@ -52,7 +55,7 @@ class Wordlift_For_Dialogflow_Get_Publisher extends Wordlift_For_Dialogflow_Resp
 				$this->add_text_message( 'Would you like to know more about them?' );
 
 				// Add promp options.
-				// TODO: We need to find a way to create this prompt message dynamically
+				// TODO: We need to find a way to create this prompt message dynamically.
 				$this->add_prompt_message( array(
 					'Yes please',
 					'No thank you',
@@ -83,7 +86,7 @@ class Wordlift_For_Dialogflow_Get_Publisher extends Wordlift_For_Dialogflow_Resp
 		// Get publisher ID.
 		$publisher_id = $this->configuration_service->get_publisher_id();
 
-		// Get publisher
+		// Get publisher.
 		$publisher = get_post( $publisher_id );
 
 		return ( ! empty( $publisher ) ) ? $publisher : array() ;

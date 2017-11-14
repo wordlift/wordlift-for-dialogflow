@@ -1,5 +1,4 @@
 <?php
-
 /**
  * The file that defines the core plugin class
  *
@@ -155,7 +154,8 @@ class Wordlift_For_Dialogflow {
 			array(
 				'methods'  => 'POST', // Method.
 				'callback' => array( $this, 'handle_request' ), // Callback function.
-		) );
+			)
+		);
 	}
 
 	/**
@@ -184,7 +184,7 @@ class Wordlift_For_Dialogflow {
 		ob_end_clean();
 
 		// Print the response in json format.
-		echo json_encode( $output );
+		echo wp_json_encode( $output );
 
 		// Finally exit to prevent other output.
 		exit;

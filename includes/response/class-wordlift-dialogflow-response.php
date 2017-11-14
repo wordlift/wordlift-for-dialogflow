@@ -9,9 +9,8 @@
  *
  * @package    Wordlift_For_Dialogflow
  * @subpackage Wordlift_For_Dialogflow/response
-*/
+ */
 abstract class Wordlift_For_Dialogflow_Response {
-
 	/**
 	 * Request action.
 	 *
@@ -66,16 +65,16 @@ abstract class Wordlift_For_Dialogflow_Response {
 	 * @static
 	 *
 	 * @param array $request The Dialogflow request.
-
+	 *
 	 * @return Wordlift_For_Dialogflow_Response $field
 	 */
 	static function factory( $request ) {
 
 		$type = $request['result']['action'];
 
-		$type = str_replace( " ", '_', ucwords( str_replace( "-", ' ', $type ) ) );
+		$type = str_replace( ' ', '_', ucwords( str_replace( '-', ' ', $type ) ) );
 
-		// Class name.		
+		// Class name.
 		$class = 'Wordlift_For_Dialogflow_' . $type;
 
 		// Throw error if the field type doens't exists.
@@ -91,7 +90,7 @@ abstract class Wordlift_For_Dialogflow_Response {
 	/**
 	 * Sets the Request action.
 	 *
-	 * @param string $action the action
+	 * @param string $action The request action.
 	 */
 	public function set_action( $action ) {
 		$this->action = $action;
@@ -109,7 +108,7 @@ abstract class Wordlift_For_Dialogflow_Response {
 	/**
 	 * Sets the Request parameters.
 	 *
-	 * @param array $params the params
+	 * @param array $params the params.
 	 */
 	public function set_params( $params ) {
 		$this->params = $params;
@@ -127,7 +126,7 @@ abstract class Wordlift_For_Dialogflow_Response {
 	/**
 	 * Sets the Request contexts.
 	 *
-	 * @param array $contexts the contexts
+	 * @param string $contexts the contexts.
 	 */
 	public function set_contexts( $contexts ) {
 		$this->contexts = $contexts;
@@ -145,6 +144,8 @@ abstract class Wordlift_For_Dialogflow_Response {
 	/**
 	 * Gets a single parameter from parameters.
 	 *
+	 * @param string $paramether The paramether we are looking for.
+	 *
 	 * @return array
 	 */
 	public function get_param( $paramether ) {
@@ -155,34 +156,24 @@ abstract class Wordlift_For_Dialogflow_Response {
 	 * Return the response.
 	 *
 	 * @access public
-	 * @abstract
 	 */
 	public function get_response() {
 		return $this->response;
 	}
- 
+
 	/**
 	 * Sets the Response speech.
 	 *
-	 * @param string $speech The response speech
-	 *
-	 * @return self
-	 */
-	/**
-	 * Sets the Response speech.
-	 *
-	 * @param string $speech The response speech
-	 *
-	 * @return self
+	 * @param string $speech The response speech.
 	 */
 	public function set_speech( $speech ) {
 		$this->response['speech'] = $this->remove_tags( $speech );
 	}
- 
+
 	/**
 	 * Add text message.
 	 *
-	 * @param text $text The message text
+	 * @param text $text The message text.
 	 *
 	 * @return void
 	 */
@@ -191,7 +182,7 @@ abstract class Wordlift_For_Dialogflow_Response {
 		$message = array(
 			'type'         => 'simple_response',
 			'platform'     => 'google',
-			'textToSpeech' => $this->remove_tags( $text )
+			'textToSpeech' => $this->remove_tags( $text ),
 		);
 
 		// Set the response messages.
@@ -209,7 +200,7 @@ abstract class Wordlift_For_Dialogflow_Response {
 		// Build the response message.
 		$message = array(
 			'type'     => 'list_card',
-			'items'    => $list
+			'items'    => $list,
 		);
 
 		// Set the response messages.
@@ -219,9 +210,10 @@ abstract class Wordlift_For_Dialogflow_Response {
 	/**
 	 * Add list message.
 	 *
-	 * @param array $list The list that will be displayed.
-	 *
-	 * @return void
+	 * @param string $title Card title.
+	 * @param string $text Card text.
+	 * @param string $link Card link.
+	 * @param string $image The featured image (optional).
 	 */
 	public function add_basic_card_message( $title, $text, $link, $image = '' ) {
 		// Build the response message.
@@ -269,12 +261,12 @@ abstract class Wordlift_For_Dialogflow_Response {
 			);
 		}
 
-		// Build message object
+		// Build message object.
 		$message = array(
 			'platform'    => 'google',
 			'type'        => 'suggestion_chips',
 			'suggestions' => $replies,
-		  );
+		);
 
 		// Set the response messages.
 		$this->response['messages'][] = $message;
@@ -283,9 +275,9 @@ abstract class Wordlift_For_Dialogflow_Response {
 	/**
 	 * Clean all tags from text.
 	 *
-	 * @param string $text Text to be cleaned
+	 * @param string $text Text to be cleaned.
 	 *
-	 * @return self
+	 * @return Plain text, without any tags
 	 */
 	public function remove_tags( $text ) {
 		return wp_kses( $text, array() );
@@ -298,5 +290,4 @@ abstract class Wordlift_For_Dialogflow_Response {
 	 * @abstract
 	 */
 	abstract public function generate_response();
-
 }
