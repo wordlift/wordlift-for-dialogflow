@@ -82,6 +82,8 @@ abstract class Wordlift_For_Dialogflow_Response_Spqrql extends Wordlift_For_Dial
 			),
 		);
 
+		error_log( $sparql );
+
 		return wp_remote_post( $url, $args );
 	}
 
@@ -109,7 +111,12 @@ abstract class Wordlift_For_Dialogflow_Response_Spqrql extends Wordlift_For_Dial
 	 * @return string The new sparql query
 	 */
 	public function build_sparql_query() {
-		return $this->get_select_clause() . $this->get_where_clause() . $this->get_limit_clause();
+		return
+			$this->get_select_clause() .
+			$this->get_where_clause() .
+			$this->get_group_clause() .
+			$this->get_order_clause() .
+			$this->get_limit_clause();
 	}
 
 	/**
@@ -131,4 +138,14 @@ abstract class Wordlift_For_Dialogflow_Response_Spqrql extends Wordlift_For_Dial
 	 * Generate the limit clause for sparql query.
 	 */
 	abstract public function get_limit_clause();
+
+	/**
+	 * Generate the group clause for sparql query.
+	 */
+	abstract public function get_group_clause();
+
+	/**
+	 * Generate the order clause for sparql query.
+	 */
+	abstract public function get_order_clause();
 }

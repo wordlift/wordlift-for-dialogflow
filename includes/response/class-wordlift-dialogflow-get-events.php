@@ -25,18 +25,24 @@ class Wordlift_For_Dialogflow_Get_Events extends Wordlift_For_Dialogflow_Respons
 			return;
 		}
 
+		$intro    = 'Here is a list with all upcoming events.';
+		$question = 'Would you like me to read you about one of these events?';
+
 		// Add intro message.
-		$this->add_text_message( 'Here is a list with all upcoming events.' . $this->get_event_names() . '. Would you like me to read you about one of these events?' );
+		$this->add_text_message( $intro . $this->get_event_names() . '. ' . $question );
 
 		// Add the list of events.
-		$this->add_list_message( $events );
+		$this->add_list_message( $events, $intro );
 
 		// Add a follow up question.
 		// TODO: We need to find a way to create this prompt message dynamically.
-		$this->add_prompt_message( array(
-			'Sure',
-			'No thanks',
-		) );
+		$this->add_prompt_message(
+			array(
+				'Yes please',
+				'No thanks',
+			),
+			$question
+		);
 	}
 
 	/**
@@ -156,7 +162,7 @@ class Wordlift_For_Dialogflow_Get_Events extends Wordlift_For_Dialogflow_Respons
 	 * @return string The select statement.
 	 */
 	public function get_select_clause() {
-		return 'SELECT * ';
+		return 'SELECT ?subject ?label ?startDate ?endDate ?description ?image ( SAMPLE( ?place ) AS ?place ) ( SAMPLE( ?endDate ) AS ?endDate )';
 	}
 
 	/**
@@ -171,7 +177,6 @@ class Wordlift_For_Dialogflow_Get_Events extends Wordlift_For_Dialogflow_Respons
 				{$this->get_response_fields()}
 				{$this->get_filter_clause()}
 			}
-			ORDER BY ASC (?startDate)
 		";
 
 		return $where;
@@ -183,7 +188,16 @@ class Wordlift_For_Dialogflow_Get_Events extends Wordlift_For_Dialogflow_Respons
 	 * @return string The filter.
 	 */
 	public function get_filter_clause() {
-		return 'FILTER ( xsd:dateTime( ?startDate ) > now() )';
+		return 'FILTER ( ?startDate > now() || ?startDate < now() && ?endDate > now() )';
+	}
+
+	/**
+	 * Adds sparql query group clause.
+	 *
+	 * @return string The group clause.
+	 */
+	public function get_group_clause() {
+		return 'GROUP BY ?subject ?label ?startDate ?description ?image ';
 	}
 
 	/**
@@ -193,7 +207,17 @@ class Wordlift_For_Dialogflow_Get_Events extends Wordlift_For_Dialogflow_Respons
 	 */
 	public function get_limit_clause() {
 		// Return the limit clause.
-		return 'LIMIT 5';
+		return 'LIMIT 5 ';
+	}
+
+	/**
+	 * Adds sparql query order clause.
+	 *
+	 * @return string The order clause.
+	 */
+	public function get_order_clause() {
+		// Return the order clause.
+		return 'ORDER BY ASC (?startDate) ';
 	}
 
 	/**
@@ -207,7 +231,8 @@ class Wordlift_For_Dialogflow_Get_Events extends Wordlift_For_Dialogflow_Respons
 			rdfs:label ?label ;
 			schema:description ?description ;
 			schema:location/dct:title ?place ;
-			schema:startDate ?startDate .
+			schema:startDate ?startDate ;
+			schema:endDate ?endDate .
 			OPTIONAL { ?subject schema:image ?image } .
 		';
 

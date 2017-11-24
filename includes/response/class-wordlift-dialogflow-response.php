@@ -183,6 +183,7 @@ abstract class Wordlift_For_Dialogflow_Response {
 			'type'         => 'simple_response',
 			'platform'     => 'google',
 			'textToSpeech' => $this->remove_tags( $text ),
+			'speech'       => $this->remove_tags( $text ),
 		);
 
 		// Set the response messages.
@@ -196,11 +197,12 @@ abstract class Wordlift_For_Dialogflow_Response {
 	 *
 	 * @return void
 	 */
-	public function add_list_message( $list ) {
+	public function add_list_message( $list, $title ) {
 		// Build the response message.
 		$message = array(
 			'type'     => 'list_card',
 			'items'    => $list,
+			'title'    => $title,
 		);
 
 		// Set the response messages.
@@ -219,8 +221,9 @@ abstract class Wordlift_For_Dialogflow_Response {
 		// Build the response message.
 		$message = array(
 			'type'           => 'basic_card',
+			'platform'       => 'google',
 			'title'          => $title,
-			'formattedText'  => $text,
+			'formattedText'  => $this->remove_tags( $text ),
 			'buttons'        => array(
 				array(
 					'openUrlAction' => array(
@@ -250,7 +253,7 @@ abstract class Wordlift_For_Dialogflow_Response {
 	 *
 	 * @return void
 	 */
-	public function add_prompt_message( $labels ) {
+	public function add_prompt_message( $labels, $title ) {
 		// The replies array.
 		$replies = array();
 
@@ -263,9 +266,10 @@ abstract class Wordlift_For_Dialogflow_Response {
 
 		// Build message object.
 		$message = array(
-			'platform'    => 'google',
 			'type'        => 'suggestion_chips',
+			'platform'    => 'google',
 			'suggestions' => $replies,
+			'title'       => $title,
 		);
 
 		// Set the response messages.

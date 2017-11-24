@@ -44,22 +44,27 @@ class Wordlift_For_Dialogflow_Get_Publisher extends Wordlift_For_Dialogflow_Resp
 
 		// Get publisher content.
 		$publisher_content = get_sentences( $publisher->post_content, 0, 1 );
+		$question          = 'Would you like to know more about them?';
+		$message           = $publisher->post_title . ' is the publisher of this website.';
 
 		// Check if we should display the full publisher info.
 		if ( empty( $this->get_param( 'full-info' ) ) ) {
 			// Build the response adding prompt.
-			$this->add_text_message( $publisher->post_title . ' is the publisher of this website.' );
+			$this->add_text_message( $message );
 
 			if ( ! empty( $publisher_content ) ) {
 				// Add prompt question.
-				$this->add_text_message( 'Would you like to know more about them?' );
+				$this->add_text_message( $question );
 
 				// Add promp options.
 				// TODO: We need to find a way to create this prompt message dynamically.
-				$this->add_prompt_message( array(
-					'Yes please',
-					'No thank you',
-				) );
+				$this->add_prompt_message(
+					array(
+						'Yes please',
+						'No thank you',
+					),
+					$message . ' ' . $question
+				);
 			}
 		} else {
 			if ( ! empty( $publisher_content ) ) {

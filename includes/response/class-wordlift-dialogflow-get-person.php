@@ -48,10 +48,13 @@ class Wordlift_For_Dialogflow_Get_Person extends Wordlift_For_Dialogflow_Respons
 
 				// Add promp options.
 				// TODO: We need to find a way to create this prompt message dynamically.
-				$this->add_prompt_message( array(
-					'Yes please',
-					'No thanks',
-				) );
+				$this->add_prompt_message(
+					array(
+						'Yes please',
+						'No thanks',
+					),
+					'Would you like to hear another fact?'
+				);
 			}
 		} else {
 			if ( ! empty( $person_content ) ) {

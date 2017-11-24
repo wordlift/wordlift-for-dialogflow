@@ -37,7 +37,7 @@ class Wordlift_For_Dialogflow_Get_Event extends Wordlift_For_Dialogflow_Get_Even
 	 */
 	public function add_event_message( $event ) {
 		if ( $this->get_param( 'event-info' ) ) {
-			// Get event first sentence.
+
 			$text = get_sentences( $event['description']['value'], 0, 2 );
 
 			// Add the event name as first message.
@@ -59,6 +59,26 @@ class Wordlift_For_Dialogflow_Get_Event extends Wordlift_For_Dialogflow_Get_Even
 			$this->get_permalink( $event['subject']['value'] ), // Link to the topic.
 			$event['image']['value'] // Add the featured image.
 		);
+	}
+
+	public function is_event_running( $event ) {
+		// Return the description if the params are missing.
+		if (
+			empty( $event['startDate']['value'] ) ||
+			empty( $event['endDate']['value'] )
+		) {
+			return;
+		}
+
+		$now        = time();
+		$start_date = strtotime( $event['startDate']['value'] );
+		$end_date   = strtotime( $event['endDate']['value'] );
+
+		if ( $now > $start_date && $now < $end_date ) {
+			$text = 'The event is running now, hurry up.';
+		}
+
+		return $text;
 	}
 
 	/**
@@ -94,6 +114,13 @@ class Wordlift_For_Dialogflow_Get_Event extends Wordlift_For_Dialogflow_Get_Even
 			date( 'g:ia', $timestamp ) // Add the time.
 		);
 
+		// Chech is the event is running now.
+		$is_running_message = $this->is_event_running( $event );
+
+		if ( ! empty( $is_running_message ) ) {
+			$message = $is_running_message;
+		}
+
 		return $message;
 	}
 
@@ -116,10 +143,13 @@ class Wordlift_For_Dialogflow_Get_Event extends Wordlift_For_Dialogflow_Get_Even
 	public function get_filter_clause() {
 		if ( $this->get_param( 'event' ) ) {
 			$title = $this->get_param( 'event' );
-			return "FILTER ( ?label='{$title}'@en )";
+			$filter = "FILTER ( ?label='{$title}'@en )";
+		} elseif ( $this->get_param( 'upcoming' ) ) {
+			$filter = parent::get_filter_clause();
 		}
 
-		return parent::get_filter_clause();
+		return $filter;
+
 	}
 
 	/**
