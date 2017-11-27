@@ -162,7 +162,7 @@ class Wordlift_For_Dialogflow_Get_Events extends Wordlift_For_Dialogflow_Respons
 	 * @return string The select statement.
 	 */
 	public function get_select_clause() {
-		return 'SELECT ?subject ?label ?startDate ?endDate ?description ?image ( SAMPLE( ?place ) AS ?place ) ( SAMPLE( ?endDate ) AS ?endDate )';
+		return 'SELECT ?subject ?label ?startDate ?endDate ?description ?speaker ?image ( SAMPLE( ?place ) AS ?place )';
 	}
 
 	/**
@@ -188,7 +188,7 @@ class Wordlift_For_Dialogflow_Get_Events extends Wordlift_For_Dialogflow_Respons
 	 * @return string The filter.
 	 */
 	public function get_filter_clause() {
-		return 'FILTER ( ?startDate > now() || ?startDate < now() && ?endDate > now() )';
+		return 'FILTER ( ?endDate > now() && STR( ?startDate ) != "" && STR( ?endDate ) != ""  )';
 	}
 
 	/**
@@ -197,7 +197,7 @@ class Wordlift_For_Dialogflow_Get_Events extends Wordlift_For_Dialogflow_Respons
 	 * @return string The group clause.
 	 */
 	public function get_group_clause() {
-		return 'GROUP BY ?subject ?label ?startDate ?description ?image ';
+		return 'GROUP BY ?subject ?label ?startDate ?endDate ?description ?speaker ?image ';
 	}
 
 	/**
@@ -226,7 +226,7 @@ class Wordlift_For_Dialogflow_Get_Events extends Wordlift_For_Dialogflow_Respons
 	 * @return string The limit clause.
 	 */
 	public function get_response_fields() {
-		$fields = '
+		$fields = "
 			?subject a ?type ;
 			rdfs:label ?label ;
 			schema:description ?description ;
@@ -234,7 +234,9 @@ class Wordlift_For_Dialogflow_Get_Events extends Wordlift_For_Dialogflow_Respons
 			schema:startDate ?startDate ;
 			schema:endDate ?endDate .
 			OPTIONAL { ?subject schema:image ?image } .
-		';
+			OPTIONAL { ?subject dct:relation ?relation . FILTER( REGEX( ?relation, '/speaker/' ) ) } .
+		    OPTIONAL { ?relation rdfs:label ?speaker } .
+		";
 
 		// Return the fields.
 		return $fields;

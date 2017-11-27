@@ -47,6 +47,8 @@ class Wordlift_For_Dialogflow_Get_Event extends Wordlift_For_Dialogflow_Get_Even
 			$text = $this->get_when_message( $event );
 		} elseif ( $this->get_param( 'where' ) ) {
 			$text = $this->get_where_message( $event );
+		} elseif ( $this->get_param( 'speaker' ) ) {
+			$text = $this->get_speaker( $event );
 		}
 
 		// Add the speech.
@@ -119,6 +121,28 @@ class Wordlift_For_Dialogflow_Get_Event extends Wordlift_For_Dialogflow_Get_Even
 
 		if ( ! empty( $is_running_message ) ) {
 			$message = $is_running_message;
+		}
+
+		return $message;
+	}
+
+	/**
+	 * Retrieve the event speaker.
+	 *
+	 * @param  array  $event   The event data.
+	 * @return string $message The speaker message
+	 */
+	public function get_speaker( $event ) {
+		// Add the default message.
+		$message = 'Sorry but there is no information about the speaker at this time.';
+
+		// Check if the event has a speaker.
+		if ( ! empty( $event['speaker']['value'] ) ) {
+			$message = sprintf(
+				'%s is the speaker of %s',
+				$event['speaker']['value'], // Add the speaker.
+				$event['label']['value'] // Add the event name.
+			);
 		}
 
 		return $message;
