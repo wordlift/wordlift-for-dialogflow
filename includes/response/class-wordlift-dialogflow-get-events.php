@@ -162,7 +162,16 @@ class Wordlift_For_Dialogflow_Get_Events extends Wordlift_For_Dialogflow_Respons
 	 * @return string The select statement.
 	 */
 	public function get_select_clause() {
-		return 'SELECT ?subject ?label ?startDate ?endDate ?description ?speaker ?image ( SAMPLE( ?place ) AS ?place )';
+		return "SELECT
+			?subject
+			?label
+			?startDate
+			?endDate
+			?description
+			?image
+			( SAMPLE( ?place ) AS ?place )
+			( SAMPLE( ?speaker ) AS ?speaker )
+		";
 	}
 
 	/**
@@ -197,7 +206,7 @@ class Wordlift_For_Dialogflow_Get_Events extends Wordlift_For_Dialogflow_Respons
 	 * @return string The group clause.
 	 */
 	public function get_group_clause() {
-		return 'GROUP BY ?subject ?label ?startDate ?endDate ?description ?speaker ?image ';
+		return 'GROUP BY ?subject ?label ?startDate ?endDate ?description ?image ';
 	}
 
 	/**
