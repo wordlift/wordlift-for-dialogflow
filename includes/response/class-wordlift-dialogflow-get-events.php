@@ -157,6 +157,17 @@ class Wordlift_For_Dialogflow_Get_Events extends Wordlift_For_Dialogflow_Respons
 	}
 
 	/**
+	 * Returns timestamp for San Francisco
+	 *
+	 * @return string San Francisco time.
+	 */
+	public function now() {
+		$now = date_format( date_create(), "Y-m-d\TH:i:s+09:00" );
+
+		return $now;
+	}
+
+	/**
 	 * Adds sparql query select clause.
 	 *
 	 * @return string The select statement.
@@ -197,7 +208,13 @@ class Wordlift_For_Dialogflow_Get_Events extends Wordlift_For_Dialogflow_Respons
 	 * @return string The filter.
 	 */
 	public function get_filter_clause() {
-		return 'FILTER ( ?endDate > now() && STR( ?startDate ) != "" && STR( ?endDate ) != ""  )';
+		$date = $this->now();
+
+		return "
+			FILTER( STR( ?startDate ) != '' ) .
+			FILTER( STR( ?endDate ) != '' ) .
+			FILTER( xsd:dateTime( ?endDate ) > '{$date}'^^xsd:dateTime )
+		";
 	}
 
 	/**
@@ -244,7 +261,7 @@ class Wordlift_For_Dialogflow_Get_Events extends Wordlift_For_Dialogflow_Respons
 			schema:endDate ?endDate .
 			OPTIONAL { ?subject schema:image ?image } .
 			OPTIONAL { ?subject dct:relation ?relation . FILTER( REGEX( ?relation, '/speaker/' ) ) } .
-		    OPTIONAL { ?relation rdfs:label ?speaker } .
+			OPTIONAL { ?relation rdfs:label ?speaker } .
 		";
 
 		// Return the fields.
