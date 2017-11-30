@@ -72,9 +72,9 @@ class Wordlift_For_Dialogflow_Get_Event extends Wordlift_For_Dialogflow_Get_Even
 			return;
 		}
 
-		$now        = time();
-		$start_date = strtotime( $event['startDate']['value'] );
-		$end_date   = strtotime( $event['endDate']['value'] );
+		$now        = $this->now();
+		$start_date = strtotime( $event['startDate']['value'] ) + 3600;
+		$end_date   = strtotime( $event['endDate']['value'] ) + 3600;
 
 		if ( $now > $start_date && $now < $end_date ) {
 			$text = 'The event is running now, hurry up.';
@@ -107,7 +107,7 @@ class Wordlift_For_Dialogflow_Get_Event extends Wordlift_For_Dialogflow_Get_Even
 	 */
 	public function get_when_message( $event ) {
 		// Convert the date string to timestamp.
-		$timestamp = strtotime( $event['startDate']['value'] );
+		$timestamp = strtotime( $event['startDate']['value'] ) + 3600;
 
 		$message = sprintf(
 			'%s will start on %s at %s',
@@ -129,7 +129,7 @@ class Wordlift_For_Dialogflow_Get_Event extends Wordlift_For_Dialogflow_Get_Even
 	/**
 	 * Retrieve the event speaker.
 	 *
-	 * @param  array  $event   The event data.
+	 * @param  array  $event   The event data. 
 	 * @return string $message The speaker message
 	 */
 	public function get_speaker( $event ) {
@@ -167,13 +167,47 @@ class Wordlift_For_Dialogflow_Get_Event extends Wordlift_For_Dialogflow_Get_Even
 	public function get_filter_clause() {
 		if ( $this->get_param( 'event' ) ) {
 			$title = $this->get_param( 'event' );
-			$filter = "FILTER ( ?label='{$title}'@en )";
+			$filter = "
+				FILTER ( STR( ?startDate ) != '' && STR( ?endDate ) != '' ) .
+				FILTER ( ?label='{$title}'@en )
+			";
 		} elseif ( $this->get_param( 'upcoming' ) ) {
 			$filter = parent::get_filter_clause();
 		}
 
 		return $filter;
 
+	}
+
+	/**
+	 * Adds sparql query select clause.
+	 *
+	 * @return string The select statement.
+	 */
+	public function get_select_clause() {
+		$date = $this->now();
+
+		return "SELECT
+			?subject
+			?label
+			?startDate
+			( xsd:dateTime( ?startDate ) >= '{$date}'^^xsd:dateTime AS ?future )
+			?endDate
+			?description
+			?image
+			( SAMPLE( ?place ) AS ?place )
+			( SAMPLE( ?speaker ) AS ?speaker )
+		";
+	}
+
+	/**
+	 * Adds sparql query order clause.
+	 *
+	 * @return string The order clause.
+	 */
+	public function get_order_clause() {
+		// Return the order clause.
+		return 'ORDER BY DESC(?future) ASC( ?startDate ) ';
 	}
 
 	/**
