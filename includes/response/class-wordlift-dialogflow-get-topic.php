@@ -47,12 +47,19 @@ class Wordlift_For_Dialogflow_Get_Topic extends Wordlift_For_Dialogflow_Response
 
 		$title = $this->get_param( 'topic' );
 
+		// Get all valid entity types.
+		$types = Wordlift_Entity_Service::valid_entity_post_types();
+
+		// Implode the types, so they can be passed to SQL query.
+		$types = implode( "', '", $types );
+
 		// Topics query.
 		$query = "
 			SELECT *
 			FROM {$wpdb->prefix}posts AS p
 			WHERE p.post_title = '{$title}'
 			AND p.post_status = 'publish'
+			AND p.post_type IN ('{$types}')
 			LIMIT 1;
 		";
 
