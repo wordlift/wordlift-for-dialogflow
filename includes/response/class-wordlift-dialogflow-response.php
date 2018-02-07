@@ -184,10 +184,20 @@ abstract class Wordlift_For_Dialogflow_Response {
 			'platform'     => 'google',
 			'textToSpeech' => $this->remove_tags( $text ),
 			'speech'       => $this->remove_tags( $text ),
+			'displayText'  => $this->remove_tags( $text ),
 		);
 
 		// Set the response messages.
 		$this->response['messages'][] = $message;
+	}
+
+	/**
+	 * Add prompt help message after each response.
+	 *
+	 * @return void
+	 */
+	public function add_help_message() {
+		$this->add_text_message( 'What else would you like to know?' );
 	}
 
 	/**

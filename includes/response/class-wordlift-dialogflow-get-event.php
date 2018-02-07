@@ -21,12 +21,14 @@ class Wordlift_For_Dialogflow_Get_Event extends Wordlift_For_Dialogflow_Get_Even
 
 		// Add error message if there are no events found.
 		if ( empty( $events ) ) {
-			$this->set_speech( 'I am sorry, there are no upcoming events on this website' );
+			$this->add_text_message( 'I am sorry, there are no upcoming events on this website' );
+			$this->add_help_message();
 			return;
 		}
 
 		// Add event massage, based on the request.
 		$this->add_event_message( $events[0] );
+		$this->add_help_message();
 	}
 
 	/**

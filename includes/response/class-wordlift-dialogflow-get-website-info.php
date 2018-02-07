@@ -22,7 +22,8 @@ class Wordlift_For_Dialogflow_Get_Website_Info extends Wordlift_For_Dialogflow_R
 
 		// Return error message if there are no topics found.
 		if ( empty( $topics ) ) {
-			$this->set_speech( 'I am afraid WordLift has not been used yet to analyze the content of this website' );
+			$this->add_text_message( 'I am afraid WordLift has not been used yet to analyze the content of this website' );
+			$this->add_help_message();
 			return;
 		}
 

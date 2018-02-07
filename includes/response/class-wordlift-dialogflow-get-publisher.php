@@ -39,7 +39,8 @@ class Wordlift_For_Dialogflow_Get_Publisher extends Wordlift_For_Dialogflow_Resp
 
 		// Return error message if the publisher is not configured.
 		if ( empty( $publisher ) ) {
-			$this->set_speech( 'Sorry, the publisher has not yet being configured on this website' );
+			$this->add_text_message( 'Sorry, the publisher has not yet being configured on this website' );
+			$this->add_help_message();
 		}
 
 		// Get publisher content.
@@ -69,6 +70,7 @@ class Wordlift_For_Dialogflow_Get_Publisher extends Wordlift_For_Dialogflow_Resp
 		} else {
 			if ( ! empty( $publisher_content ) ) {
 				$this->add_text_message( $publisher_content );
+				$this->add_help_message();
 			}
 		}
 	}

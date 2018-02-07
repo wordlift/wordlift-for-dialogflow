@@ -20,7 +20,8 @@ class Wordlift_For_Dialogflow_Get_Topic extends Wordlift_For_Dialogflow_Response
 
 		// Return error message if there are no topic found.
 		if ( empty( $topic ) ) {
-			$this->set_speech( 'I am afraid WordLift has not been used yet to analyze the content of this website' );
+			$this->add_text_message( 'I am afraid WordLift has not been used yet to analyze the content of this website' );
+			$this->add_help_message();
 			return;
 		}
 
@@ -35,6 +36,8 @@ class Wordlift_For_Dialogflow_Get_Topic extends Wordlift_For_Dialogflow_Response
 			get_permalink( $topic ), // Link to the topic.
 			get_the_post_thumbnail_url( $topic ) // Add the featured image.
 		);
+
+		$this->add_help_message();
 	}
 
 	/**

@@ -21,7 +21,8 @@ class Wordlift_For_Dialogflow_Get_Person extends Wordlift_For_Dialogflow_Respons
 		$person = $this->get_person();
 
 		if ( empty( $person ) ) {
-			$this->set_speech( 'I am so sorry but I am afraid I don\'t have an answer to your question. Would you like to know what this website is about instead?' );
+			$this->add_text_message( 'I am so sorry but I am afraid I don\'t have an answer to your question. Would you like to know what this website is about instead?' );
+			$this->add_help_message();
 			return;
 		}
 
@@ -59,6 +60,7 @@ class Wordlift_For_Dialogflow_Get_Person extends Wordlift_For_Dialogflow_Respons
 		} else {
 			if ( ! empty( $person_content ) ) {
 				$this->add_text_message( $person_content );
+				$this->add_help_message();
 			}
 		}
 

@@ -21,7 +21,8 @@ class Wordlift_For_Dialogflow_Get_Related_Events extends Wordlift_For_Dialogflow
 
 		// Add error message if there are no events found.
 		if ( empty( $events ) || empty( $this->get_param( 'relation' ) ) ) {
-			$this->set_speech( 'I am sorry, there are no upcoming events. Maybe try something else.' );
+			$this->add_text_message( 'I am sorry, there are no upcoming events.' );
+			$this->add_help_message();
 			return;
 		}
 
